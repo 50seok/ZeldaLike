@@ -1,0 +1,136 @@
+[gd_resource type="Resource" script_class="ReactionTable" format=3]
+
+[ext_resource type="Script" path="res://scripts/chemistry/reaction_rule.gd" id="1_wnq71"]
+[ext_resource type="Script" path="res://scripts/chemistry/reaction_table.gd" id="2_ertyt"]
+
+[sub_resource type="Resource" id="Resource_h7iij"]
+script = ExtResource("1_wnq71")
+material_a = 0
+state_a = 1
+material_b = 3
+state_b = 0
+affects_a = false
+result_state_a = 0
+convert_material_a = 0
+shock_a = false
+affects_b = true
+result_state_b = 1
+convert_material_b = 0
+shock_b = false
+description = "불 접촉 -> GRASS 착화"
+
+[sub_resource type="Resource" id="Resource_a6hrc"]
+script = ExtResource("1_wnq71")
+material_a = 0
+state_a = 1
+material_b = 1
+state_b = 0
+affects_a = false
+result_state_a = 0
+convert_material_a = 0
+shock_a = false
+affects_b = true
+result_state_b = 1
+convert_material_b = 0
+shock_b = false
+description = "불 접촉 -> WOOD 착화"
+
+[sub_resource type="Resource" id="Resource_xp7aj"]
+script = ExtResource("1_wnq71")
+material_a = 0
+state_a = 1
+material_b = 4
+state_b = 0
+affects_a = false
+result_state_a = 0
+convert_material_a = 0
+shock_a = false
+affects_b = true
+result_state_b = 1
+convert_material_b = 0
+shock_b = false
+description = "불 접촉 -> CLOTH 착화"
+
+[sub_resource type="Resource" id="Resource_j7lcl"]
+script = ExtResource("1_wnq71")
+material_a = 3
+state_a = 1
+material_b = 3
+state_b = 0
+affects_a = false
+result_state_a = 0
+convert_material_a = 0
+shock_a = false
+affects_b = true
+result_state_b = 1
+convert_material_b = 0
+shock_b = false
+description = "불붙은 풀 -> 인접 풀 연쇄 전파"
+
+[sub_resource type="Resource" id="Resource_hg8ep"]
+script = ExtResource("1_wnq71")
+material_a = 5
+state_a = 0
+material_b = 0
+state_b = 1
+affects_a = false
+result_state_a = 0
+convert_material_a = 0
+shock_a = false
+affects_b = true
+result_state_b = 2
+convert_material_b = 0
+shock_b = false
+description = "물 접촉 -> 불붙은 대상 소화, WET 부여"
+
+[sub_resource type="Resource" id="Resource_kv7yr"]
+script = ExtResource("1_wnq71")
+material_a = 0
+state_a = 3
+material_b = 2
+state_b = 0
+affects_a = false
+result_state_a = 0
+convert_material_a = 0
+shock_a = false
+affects_b = true
+result_state_b = 3
+convert_material_b = 0
+shock_b = false
+description = "전기 접촉 -> 금속으로 전도"
+
+[sub_resource type="Resource" id="Resource_av6x4"]
+script = ExtResource("1_wnq71")
+material_a = 0
+state_a = 3
+material_b = 0
+state_b = 2
+affects_a = false
+result_state_a = 0
+convert_material_a = 0
+shock_a = false
+affects_b = true
+result_state_b = 0
+convert_material_b = 0
+shock_b = true
+description = "전기 접촉 -> 젖은 대상 감전 (피해는 M2 전투에서 연동)"
+
+[sub_resource type="Resource" id="Resource_68bch"]
+script = ExtResource("1_wnq71")
+material_a = 0
+state_a = 1
+material_b = 6
+state_b = 4
+affects_a = false
+result_state_a = 0
+convert_material_a = 0
+shock_a = false
+affects_b = true
+result_state_b = 0
+convert_material_b = 5
+shock_b = false
+description = "불 접촉 -> 얼음 해빙, 물로 전환"
+
+[resource]
+script = ExtResource("2_ertyt")
+rules = Array[ExtResource("1_wnq71")]([SubResource("Resource_h7iij"), SubResource("Resource_a6hrc"), SubResource("Resource_xp7aj"), SubResource("Resource_j7lcl"), SubResource("Resource_hg8ep"), SubResource("Resource_kv7yr"), SubResource("Resource_av6x4"), SubResource("Resource_68bch")])

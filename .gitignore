@@ -1,0 +1,12 @@
+# Godot 4 standard
+.godot/
+project/.godot/
+export.cfg
+export_presets.cfg
+
+# Godot engine binaries (downloaded, not project source)
+godot/
+
+# OS
+Thumbs.db
+.DS_Store
