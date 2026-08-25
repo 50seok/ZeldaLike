@@ -46,12 +46,21 @@ func _ready() -> void:
 	_zone_ctrl.setup(camera, _player)
 	_zone_ctrl.zone_changed.connect(func(zone): _log("%s 진입" % (zone.zone_name if zone else "경계 밖")))
 
-	var vine1 := VineEnemy.new()
-	vine1.global_position = Vector2(1000, 250)
-	add_child(vine1)
-	var vine2 := VineEnemy.new()
-	vine2.global_position = Vector2(1150, 400)
-	add_child(vine2)
+	var sp1 := SpawnPoint.new()
+	sp1.monster_type = "vine"
+	sp1.position = Vector2(1000, 250)
+	add_child(sp1)
+	var sp2 := SpawnPoint.new()
+	sp2.monster_type = "vine"
+	sp2.position = Vector2(1150, 400)
+	add_child(sp2)
+
+	var spawn_mgr := FieldSpawnManager.new()
+	spawn_mgr.spawn_points = [sp1, sp2]
+	spawn_mgr.field_cap = 5
+	add_child(spawn_mgr)
+	spawn_mgr.setup(camera)
+	spawn_mgr.monster_spawned.connect(_on_monster_spawned)
 
 	var grass1 := GrassPatch.new()
 	grass1.global_position = Vector2(1050, 500)
@@ -66,7 +75,7 @@ func _ready() -> void:
 	var help := Label.new()
 	help.position = Vector2(20, 20)
 	help.add_theme_font_size_override("font_size", 16)
-	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Tab 화살속성 전환\n마을(안전)에서 오른쪽으로 걸어가면 초원(덩굴이+수풀)"
+	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Tab 화살속성 전환\n마을(안전)에서 오른쪽으로 걸어가면 초원(덩굴이+수풀). 덩굴이는 죽여도 화면 밖에서 시간 지나면 다시 나타남"
 	ui.add_child(help)
 
 	_status_label = Label.new()
@@ -85,11 +94,6 @@ func _ready() -> void:
 	_player.died.connect(func(): _log("플레이어 사망..."))
 	_player.item_collected.connect(func(item_id, count): _log("아이템 획득 +%d" % count))
 
-	vine1.damaged.connect(func(amount): _log("덩굴이1 피격 -%.1f" % amount))
-	vine1.died.connect(func(): _log("덩굴이1 처치!"))
-	vine2.damaged.connect(func(amount): _log("덩굴이2 피격 -%.1f" % amount))
-	vine2.died.connect(func(): _log("덩굴이2 처치!"))
-
 
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_player):
@@ -98,6 +102,14 @@ func _process(_delta: float) -> void:
 	_status_label.text = "현재 구역: %s | 하트: %.1f/%.1f | 화살: %d" % [
 		zone_name, _player.hearts, _player.max_hearts, _player.inventory.get_count(ItemIds.ARROW)
 	]
+
+
+func _on_monster_spawned(monster: Node) -> void:
+	_log("%s 등장" % monster.display_name)
+	if monster.has_signal("damaged"):
+		monster.damaged.connect(func(amount): _log("%s 피격 -%.1f" % [monster.display_name, amount]))
+	if monster.has_signal("died"):
+		monster.died.connect(func(): _log("%s 처치!" % monster.display_name))
 
 
 func _log(msg: String) -> void:
