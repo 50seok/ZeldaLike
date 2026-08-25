@@ -33,6 +33,33 @@ func _ready() -> void:
 	_player.add_child(camera)
 	camera.make_current()
 
+	# UI를 먼저 만든다 — 아래 스폰/몬스터 배치 코드가 _log()를 바로 호출하는데,
+	# UI(특히 _log_label)가 없는 상태에서 부르면 Nil 참조 에러가 난다(실측 확인).
+	var ui := CanvasLayer.new()
+	add_child(ui)
+
+	var help := Label.new()
+	help.position = Vector2(20, 20)
+	help.add_theme_font_size_override("font_size", 16)
+	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Tab 화살속성 전환(일반/불/전기)\n마을(안전)->초원(덩굴이+수풀, 리젠됨)->더 오른쪽: 우드가드(불화살로 방패 태우기)/엠버(물항아리로 즉사)/아이언셸(물+전기 콤보 스턴)"
+	ui.add_child(help)
+
+	_status_label = Label.new()
+	_status_label.position = Vector2(20, 70)
+	_status_label.add_theme_font_size_override("font_size", 16)
+	ui.add_child(_status_label)
+
+	_log_label = Label.new()
+	_log_label.position = Vector2(20, 100)
+	_log_label.add_theme_font_size_override("font_size", 14)
+	_log_label.add_theme_color_override("font_color", Color(1, 0.9, 0.4))
+	ui.add_child(_log_label)
+
+	_player.did_attack.connect(func(kind): _log("플레이어 %s 공격!" % kind))
+	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))
+	_player.died.connect(func(): _log("플레이어 사망..."))
+	_player.item_collected.connect(func(item_id, count): _log("아이템 획득 +%d" % count))
+
 	var village := WorldZone.new()
 	village.zone_name = "옹달마을"
 	village.bounds = _village_bounds
@@ -90,31 +117,6 @@ func _ready() -> void:
 	shell.global_position = Vector2(1900, 300)
 	add_child(shell)
 	_on_monster_spawned(shell)
-
-	var ui := CanvasLayer.new()
-	add_child(ui)
-
-	var help := Label.new()
-	help.position = Vector2(20, 20)
-	help.add_theme_font_size_override("font_size", 16)
-	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Tab 화살속성 전환(일반/불/전기)\n마을(안전)->초원(덩굴이+수풀, 리젠됨)->더 오른쪽: 우드가드(불화살로 방패 태우기)/엠버(물항아리로 즉사)/아이언셸(물+전기 콤보 스턴)"
-	ui.add_child(help)
-
-	_status_label = Label.new()
-	_status_label.position = Vector2(20, 70)
-	_status_label.add_theme_font_size_override("font_size", 16)
-	ui.add_child(_status_label)
-
-	_log_label = Label.new()
-	_log_label.position = Vector2(20, 100)
-	_log_label.add_theme_font_size_override("font_size", 14)
-	_log_label.add_theme_color_override("font_color", Color(1, 0.9, 0.4))
-	ui.add_child(_log_label)
-
-	_player.did_attack.connect(func(kind): _log("플레이어 %s 공격!" % kind))
-	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))
-	_player.died.connect(func(): _log("플레이어 사망..."))
-	_player.item_collected.connect(func(item_id, count): _log("아이템 획득 +%d" % count))
 
 
 func _process(_delta: float) -> void:
