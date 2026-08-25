@@ -44,7 +44,7 @@ func prepare_new_game() -> void:
 
 func start_new_game() -> void:
 	prepare_new_game()
-	get_tree().change_scene_to_file(main_game_scene_path)
+	get_tree().change_scene_to_file("res://scenes/opening/opening.tscn")
 
 
 func continue_game() -> void:

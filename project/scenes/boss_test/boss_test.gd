@@ -84,6 +84,7 @@ func _ready() -> void:
 	)
 	_boss.defeated.connect(func():
 		_log("혼돈의 코어 격파! 승리!")
+		get_tree().change_scene_to_file("res://scenes/ending/ending.tscn")
 	)
 
 	# §4.1 "물 웅덩이 2곳(항아리 리필)" - 콤보 자원이 고갈돼 막히지 않게.
