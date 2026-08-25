@@ -61,6 +61,7 @@ func _run_all_tests() -> void:
 	await _test_weapon_chemistry()
 	await _test_shield()
 	await _test_pickup_throw()
+	await _test_fire_right_self_safety()
 
 
 func _test_melee() -> void:
@@ -159,6 +160,28 @@ func _test_pickup_throw() -> void:
 	player.queue_free()
 	if is_instance_valid(target):
 		target.queue_free()
+	await get_tree().create_timer(0.1).timeout
+
+
+func _test_fire_right_self_safety() -> void:
+	# 오른쪽으로 쏘면 장착무기(플레이어 로컬 +16,0)와 화살 경로가 거의 겹친다 —
+	# 실제 수동 플레이에서 이 방향으로 쐈을 때만 발사자가 죽는 버그가 나왔었다.
+	var player := _spawn_player(Vector2(1300, 100))
+	player.facing = Vector2.RIGHT
+	player.cycle_tool()
+	var vine := _spawn_vine(Vector2(1450, 100))
+	vine.max_hearts = 5.0
+	vine.hearts = 5.0
+	await get_tree().physics_frame
+	player.perform_bow_attack()
+	await get_tree().create_timer(0.6).timeout
+	_check("G 오른쪽 불화살 -> 발사자 생존", is_instance_valid(player) and player.hearts > 0.0)
+	_check("G 오른쪽 불화살 -> 장착무기 무사", is_instance_valid(player) and player._equipped_weapon != null)
+	_check("G 오른쪽 불화살 -> 대상 명중(착화)", is_instance_valid(vine) and vine.state == ChemTypes.State.BURNING)
+	if is_instance_valid(player):
+		player.queue_free()
+	if is_instance_valid(vine):
+		vine.queue_free()
 	await get_tree().create_timer(0.1).timeout
 
 

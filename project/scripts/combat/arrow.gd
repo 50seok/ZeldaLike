@@ -25,7 +25,11 @@ func _physics_process(delta: float) -> void:
 
 
 func _on_area_entered(other: Area2D) -> void:
-	if other == shooter:
+	# 발사자 본인뿐 아니라 그 자식 노드(장착무기)까지 걸러야 한다 — 안 그러면
+	# 무기를 맞혀 착화시키고, 무기가 다시 자기 소지자를 재스캔해서 불이 옮는
+	# 경로(ChemActor.set_state의 겹침 재조회)가 signal 기반 가드를 다 우회한다.
+	# Throwable의 자기-투척자 회피와 동일한 패턴(실측 확인 - "불화살 쐈는데 내가 죽음").
+	if other == shooter or other.get_parent() == shooter:
 		return
 	super._on_area_entered(other)
 	if other is Combatant:
