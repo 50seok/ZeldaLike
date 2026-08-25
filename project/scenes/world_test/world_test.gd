@@ -74,13 +74,30 @@ func _ready() -> void:
 	grass2.global_position = Vector2(1250, 250)
 	add_child(grass2)
 
+	# 우선순위3 신규 몬스터 미리보기 배치(실제 필드 배치는 우선순위6 던전/필드
+	# 콘텐츠 작업에서 정리 - 지금은 동작 확인용 고정 배치)
+	var guard := WoodGuard.new()
+	guard.global_position = Vector2(1500, 300)
+	add_child(guard)
+	_on_monster_spawned(guard)
+
+	var ember := Ember.new()
+	ember.global_position = Vector2(1700, 500)
+	add_child(ember)
+	_on_monster_spawned(ember)
+
+	var shell := IronShell.new()
+	shell.global_position = Vector2(1900, 300)
+	add_child(shell)
+	_on_monster_spawned(shell)
+
 	var ui := CanvasLayer.new()
 	add_child(ui)
 
 	var help := Label.new()
 	help.position = Vector2(20, 20)
 	help.add_theme_font_size_override("font_size", 16)
-	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Tab 화살속성 전환\n마을(안전)에서 오른쪽으로 걸어가면 초원(덩굴이+수풀). 덩굴이를 죽인 뒤 필드 안쪽으로 더 들어가(화면 밖으로) 8초 넘게 기다렸다 돌아오면 리젠됨"
+	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Tab 화살속성 전환(일반/불/전기)\n마을(안전)->초원(덩굴이+수풀, 리젠됨)->더 오른쪽: 우드가드(불화살로 방패 태우기)/엠버(물항아리로 즉사)/아이언셸(물+전기 콤보 스턴)"
 	ui.add_child(help)
 
 	_status_label = Label.new()
