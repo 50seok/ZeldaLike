@@ -170,6 +170,13 @@ func interact_or_throw() -> void:
 			area.talk(_get_or_find_dialogue_box())
 			return
 	for area in get_overlapping_areas():
+		if area is TreasureChest:
+			if area.open(self):
+				did_interact.emit("보물상자 개봉")
+			else:
+				did_interact.emit("이미 연 상자")
+			return
+	for area in get_overlapping_areas():
 		if area is Throwable:
 			did_interact.emit("주움")
 			_held_item = area
