@@ -47,7 +47,7 @@ func _ready() -> void:
 	var help := Label.new()
 	help.position = Vector2(20, 20)
 	help.add_theme_font_size_override("font_size", 16)
-	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Space 줍기/던지기/상자 열기 · V 내려놓기 · Tab 화살속성 전환\n입구(수풀 태우기)->작은열쇠방->전기스위치방(얼음 녹이면 남쪽 비밀방)->보스열쇠방->보스방(placeholder)"
+	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Space 줍기/던지기/상자 열기/대화(대화 중엔 다음 줄) · V 내려놓기 · Tab 화살속성 전환\n입구(수풀 태우기, 석판1)->작은열쇠방(석판2)->전기스위치방(얼음 녹이면 남쪽 비밀방=정령)->보스열쇠방(석판3)->보스방(placeholder)"
 	ui.add_child(help)
 
 	_status_label = Label.new()
@@ -67,6 +67,10 @@ func _ready() -> void:
 	ui.add_child(hotbar)
 
 	ui.add_child(PauseMenu.new())
+
+	var dialogue_box := DialogueBox.new()
+	ui.add_child(dialogue_box)
+	dialogue_box.add_to_group("dialogue_box")
 
 	_player.did_attack.connect(func(kind): _log("플레이어 %s 공격!" % kind))
 	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))
@@ -166,6 +170,50 @@ func _ready() -> void:
 	boss_placeholder.add_theme_font_size_override("font_size", 20)
 	boss_placeholder.text = "(보스 \"혼돈의 코어\"는 우선순위 M4에서 구현 예정)"
 	add_child(boss_placeholder)
+
+	# 우선순위4 - 석판(§3.5 유적 내력) + 정령 구출. 기존 NPC/대화 시스템을 그대로
+	# 재사용한다(석판=대사만 있는 NPC, 정령=sets_flag가 있는 NPC) - 새 시스템 없음.
+	var tablet1 := StoneTablet.new()
+	tablet1.npc_name = "석판 1"
+	tablet1.lines = ["이 유적은 오래 전, 연금술사들이 네 원소의 폭주를 막기 위해 세운 봉인이었다."]
+	tablet1.global_position = Vector2(200, 450)
+	add_child(tablet1)
+
+	var tablet2 := StoneTablet.new()
+	tablet2.npc_name = "석판 2"
+	tablet2.lines = ["원소는 본디 자유로웠으나, 다스릴 줄 모르는 자들의 손에서 마을을 몇 번이고 집어삼켰다."]
+	tablet2.global_position = Vector2(1100, 450)
+	add_child(tablet2)
+
+	var tablet3 := StoneTablet.new()
+	tablet3.npc_name = "석판 3"
+	tablet3.lines = ["그리하여 선조들은 원소를 이곳 깊은 곳에 가두고, 조화를 지킬 자가 나타나기를 기다렸다."]
+	tablet3.global_position = Vector2(2700, 450)
+	add_child(tablet3)
+
+	# §3.5 "중간에 갇힌 원소 정령을 구출(플래그②)하면 정령이 보스의 약점을
+	# 알려주고 보스 방이 열림". 얼음 녹이기 비밀 방(이미 있는 화학 퍼즐)에
+	# 갇혀 있던 걸로 자연스럽게 배치 - 새 잠금 기믹을 또 안 만들어도 됨.
+	var spirit := NPC.new()
+	spirit.npc_name = "원소 정령"
+	spirit.lines = [
+		"...누구냐...",
+		"오랫동안 갇혀 있었다. 네가 나를 자유롭게 해주었구나.",
+		"혼돈의 코어에게는 약점이 있다 - 물로 적신 뒤 전기로 감전시키면 잠시 무방비해진다.",
+		"가라, 견습 연금술사여. 균형을 되찾아다오.",
+	]
+	spirit.sets_flag = "spirit_rescued"
+	spirit.global_position = Vector2(2100, 850)
+	add_child(spirit)
+
+	# 정령을 구출하면 보스 열쇠와 별개로도 보스 방이 열린다(§3.5 그대로) - 이미
+	# 만들어둔 boss_door.unlock()을 재사용, Door는 둘 중 뭐가 먼저 오든 안전
+	# (한 번 열리면 unlock()이 멱등).
+	StoryFlags.flag_changed.connect(func(flag_name):
+		if flag_name == "spirit_rescued":
+			boss_door.unlock()
+			_log("정령이 자유로워졌다 - 보스 방이 열렸다!")
+	)
 
 
 func _process(_delta: float) -> void:
