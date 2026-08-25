@@ -13,8 +13,11 @@ var shooter: Node = null
 
 
 func _ready() -> void:
-	super._ready()
+	# box_size는 super._ready()가 충돌 shape를 만들기 전에 정해야 한다 —
+	# 순서가 반대면 화살이 기본 32x32 크기로 만들어져(실측 확인, 플레이어 자신도
+	# 쏘자마자 맞을 만큼 큼) 의도한 작은 화살 판정이 적용되지 않는다.
 	box_size = Vector2(14, 6)
+	super._ready()
 
 
 func _physics_process(delta: float) -> void:

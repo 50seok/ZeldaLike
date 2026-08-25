@@ -29,6 +29,7 @@ func _ready() -> void:
 	campfire.chem_material = ChemTypes.MaterialTag.WOOD
 	campfire.display_name = "화톳불"
 	campfire.global_position = Vector2(250, 200)
+	campfire.burn_duration = 30.0  # 샌드박스에서 오래 테스트할 수 있게 기본(2.5초)보다 길게
 	add_child(campfire)
 	campfire.set_state(ChemTypes.State.BURNING)
 

@@ -14,3 +14,11 @@ signal weapon_destroyed
 func _ready() -> void:
 	super._ready()
 	burned_out.connect(func(): weapon_destroyed.emit())
+
+
+## 소지자가 쏜 자기 화살에 이 무기가 맞아 불붙는 것도 자기-접촉과 같은 문제라
+## 같은 패턴으로 무시한다(Player._on_area_entered 참고).
+func _on_area_entered(other: Area2D) -> void:
+	if other is Arrow and other.shooter == get_parent():
+		return
+	super._on_area_entered(other)

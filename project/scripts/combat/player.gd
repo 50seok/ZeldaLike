@@ -54,6 +54,15 @@ func _unhandled_input(event: InputEvent) -> void:
 				cycle_tool()
 
 
+## 자기가 쏜 화살과도 접촉 판정이 나서(Arrow는 shooter를 무시하지만 반대쪽인
+## 플레이어는 몰랐음), 불화살 쏘면 CLOTH 재질인 자신에게 불이 옮아 타 죽던 버그
+## 수정(실측 확인 - "불화살로 공격했는데 내가 죽음").
+func _on_area_entered(other: Area2D) -> void:
+	if other is Arrow and other.shooter == self:
+		return
+	super._on_area_entered(other)
+
+
 func take_damage(amount: float) -> void:
 	var final_amount := amount
 	if shield_active:
