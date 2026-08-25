@@ -2,7 +2,7 @@
 .godot/
 project/.godot/
 export.cfg
-export_presets.cfg
+# export_presets.cfg: 1인 개발이라 민감정보 없음 - 버전관리 포함(M5 웹/Windows 설정 보존)
 
 # Godot engine binaries (downloaded, not project source)
 godot/
