@@ -56,7 +56,10 @@ func _ready() -> void:
 	_label.position = Vector2(-box_size.x / 2, -box_size.y / 2 - 34)
 	_label.add_theme_font_size_override("font_size", 12)
 	add_child(_label)
-	_update_label()
+	# 자식 클래스(VineEnemy/Player 등)가 super._ready() 직후 자기 chem_material/display_name을
+	# 덮어쓰는 경우가 많아서, 그 덮어쓰기가 끝난 다음 프레임에 라벨을 갱신한다 —
+	# 여기서 즉시 호출하면 자식이 덮어쓰기 전 기본값(WOOD, 이름 없음)으로 굳어버린다(실측 확인).
+	call_deferred("_update_label")
 
 	area_entered.connect(_on_area_entered)
 	queue_redraw()
