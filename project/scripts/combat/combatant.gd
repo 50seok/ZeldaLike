@@ -23,4 +23,5 @@ func take_damage(amount: float) -> void:
 	damaged.emit(amount)
 	if hearts <= 0.0:
 		died.emit()
+		perform_drops()
 		queue_free()

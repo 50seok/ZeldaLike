@@ -24,6 +24,20 @@ func _ready() -> void:
 	burn_duration = 0.4  # "불에 즉시 연소 사망" 체감 — 다른 재질보다 짧게
 	display_name = "덩굴이"
 	add_to_group("combatant_enemies")
+	_setup_drops()
+
+
+## §3.3 수풀 예시 그대로: 기본 파괴=하트/화살 20%, 태워 죽이면 드랍 없음(재만 남음).
+func _setup_drops() -> void:
+	var table := DropTable.new()
+	var heart_drop := DropEntry.new()
+	heart_drop.item_id = ItemIds.HEART
+	heart_drop.chance = 0.2
+	var arrow_drop := DropEntry.new()
+	arrow_drop.item_id = ItemIds.ARROW
+	arrow_drop.chance = 0.2
+	table.default_drops = [heart_drop, arrow_drop]
+	drop_table = table
 
 
 func _physics_process(delta: float) -> void:

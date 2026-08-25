@@ -15,6 +15,7 @@ signal burned_out
 @export var display_name: String = ""
 @export var burn_duration: float = 2.5
 @export var box_size: Vector2 = Vector2(32, 32)
+@export var drop_table: DropTable
 
 var state: int = ChemTypes.State.NONE
 
@@ -90,7 +91,21 @@ func _process(delta: float) -> void:
 		_burn_timer += delta
 		if _burn_timer >= burn_duration:
 			burned_out.emit()
+			perform_drops()
 			queue_free()
+
+
+## §3.3 드랍 — 파괴 시점의 상태(state)로 기본/BURNING 테이블 중 골라 굴리고,
+## 유일한 플레이어(그룹 "player")에게 바로 지급한다(물리 픽업 오브젝트는 Post-MVP,
+## 지금은 "접촉 즉시 획득" 관례를 인벤토리 직접 지급으로 단순화).
+func perform_drops() -> void:
+	if drop_table == null:
+		return
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null or not player.has_method("collect_item"):
+		return
+	for drop in drop_table.roll(state):
+		player.collect_item(drop["item_id"], drop["count"])
 
 
 func _draw() -> void:

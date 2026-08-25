@@ -9,6 +9,9 @@ enum ToolType { NORMAL, FIRE }
 ## 공격/방어 그래픽이 없는 동안(M2) 조작 결과를 확인할 수 있게 하는 디버그용 신호.
 signal did_attack(kind: String)
 signal did_shield_toggle(active: bool)
+signal item_collected(item_id: String, count: int)
+
+var inventory := Inventory.new()
 
 @export var move_speed: float = 140.0
 @export var sword_material: int = ChemTypes.MaterialTag.WOOD
@@ -111,6 +114,24 @@ func interact_or_throw() -> void:
 			_held_item = area
 			area.pick_up(self)
 			return
+
+
+## §3.3 드랍 지급 진입점. ChemActor.perform_drops()가 그룹 "player"를 찾아 이걸 호출한다.
+## 하트=즉시 회복(인벤토리에 안 쌓임), 하트조각=4개 모이면 최대 하트+1(젤다 관례),
+## 나머지(화살·열쇠)는 그냥 인벤토리 수량으로 누적.
+func collect_item(item_id: String, count: int) -> void:
+	match item_id:
+		ItemIds.HEART:
+			hearts = min(max_hearts, hearts + count)
+		ItemIds.HEART_PIECE:
+			inventory.add(item_id, count)
+			while inventory.get_count(ItemIds.HEART_PIECE) >= 4:
+				inventory.remove(ItemIds.HEART_PIECE, 4)
+				max_hearts += 1.0
+				hearts = max_hearts
+		_:
+			inventory.add(item_id, count)
+	item_collected.emit(item_id, count)
 
 
 func _spawn_equipped_weapon() -> void:
