@@ -27,6 +27,14 @@ func throw(dir: Vector2) -> void:
 	visible = true
 
 
+## 던지지 않고 지금 위치에 그냥 내려놓는다 — 속도 0이라 제자리에 남는다.
+func put_down() -> void:
+	_held_by = null
+	_is_thrown = false
+	monitoring = true
+	visible = true
+
+
 func _physics_process(_delta: float) -> void:
 	if _held_by:
 		global_position = _held_by.global_position

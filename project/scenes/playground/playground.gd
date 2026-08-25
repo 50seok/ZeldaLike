@@ -58,7 +58,7 @@ func _ready() -> void:
 	var help := Label.new()
 	help.position = Vector2(20, 20)
 	help.add_theme_font_size_override("font_size", 16)
-	help.text = "방향키 이동 · Z 칼 · X 활 · C 방패 토글 · Space 줍기/던지기 · Tab 화살속성 전환(일반↔불)\n덩굴이=풀(불에 약함) / 화톳불=나무(BURNING) / 금속상자 / 얼음(FROZEN) / 물항아리=던지면 화학반응"
+	help.text = "방향키 이동 · Z 칼 · X 활 · C 방패 토글 · Space 줍기/던지기 · V 내려놓기 · Tab 화살속성 전환(일반↔불)\n덩굴이=풀(불에 약함) / 화톳불=나무(BURNING) / 금속상자 / 얼음(FROZEN) / 물항아리=던지면 화학반응"
 	ui.add_child(help)
 
 	_status_label = Label.new()
@@ -77,6 +77,7 @@ func _ready() -> void:
 	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))
 	_player.died.connect(func(): _log("플레이어 사망..."))
 	_player.item_collected.connect(func(item_id, count): _log("%s 획득! (+%d)" % [_item_display_name(item_id), count]))
+	_player.did_interact.connect(func(result): _log("Space -> %s" % result))
 	_vine.damaged.connect(func(amount): _log("덩굴이 피격 -%.1f" % amount))
 	_vine.died.connect(func(): _log("덩굴이 처치!"))
 

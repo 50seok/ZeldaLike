@@ -41,7 +41,7 @@ func _ready() -> void:
 	var help := Label.new()
 	help.position = Vector2(20, 20)
 	help.add_theme_font_size_override("font_size", 16)
-	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Tab 화살속성 전환(일반/불/전기)\n마을(안전)->초원(덩굴이+수풀, 리젠됨)->더 오른쪽: 우드가드(불화살로 방패 태우기)/엠버(물항아리로 즉사)/아이언셸(물+전기 콤보 스턴)"
+	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Space 줍기/던지기 · V 내려놓기 · Tab 화살속성 전환(일반/불/전기)\n마을(안전)->초원(덩굴이+수풀, 리젠됨)->더 오른쪽: 우드가드(불화살로 방패 태우기)/엠버(물항아리로 즉사)/아이언셸(물+전기 콤보 스턴)"
 	ui.add_child(help)
 
 	_status_label = Label.new()

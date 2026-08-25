@@ -58,6 +58,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				toggle_shield()
 			KEY_SPACE:
 				interact_or_throw()
+			KEY_V:
+				put_down_item()
 			KEY_TAB:
 				cycle_tool()
 
@@ -149,6 +151,17 @@ func interact_or_throw() -> void:
 			area.pick_up(self)
 			return
 	did_interact.emit("주울 것 없음")
+
+
+## Space(던지기)와 분리한 이유: 실수로 던지지 않고 제자리에 놓고 싶을 때
+## 쓰는 별도 동작이라, 같은 키에 얹으면 헷갈린다(실측 지적: "내려놓기도 필요해 보임").
+func put_down_item() -> void:
+	if _held_item:
+		_held_item.put_down()
+		did_interact.emit("내려놓음")
+		_held_item = null
+	else:
+		did_interact.emit("들고 있는 거 없음")
 
 
 ## §3.3 드랍 지급 진입점. ChemActor.perform_drops()가 그룹 "player"를 찾아 이걸 호출한다.
