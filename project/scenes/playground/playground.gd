@@ -72,6 +72,11 @@ func _ready() -> void:
 	_log_label.add_theme_color_override("font_color", Color(1, 0.9, 0.4))
 	ui.add_child(_log_label)
 
+	var hotbar := Hotbar.new()
+	hotbar.position = Vector2(20, 250)
+	hotbar.player = _player
+	ui.add_child(hotbar)
+
 	_player.did_attack.connect(func(kind): _log("플레이어 %s 공격!" % kind))
 	_player.did_shield_toggle.connect(func(active): _log("방패 %s" % ("ON" if active else "OFF")))
 	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))
@@ -99,15 +104,9 @@ func _item_display_name(item_id: String) -> String:
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_player):
 		return
-	var tool_name := "불" if _player.current_tool == Player.ToolType.FIRE else "일반"
-	var inv := _player.inventory
-	_status_label.text = "하트: %.1f/%.1f | 방패: %s | 화살속성: %s | 소지: 화살 %d · 열쇠 %d · 하트조각 %d" % [
+	_status_label.text = "하트: %.1f/%.1f | 방패: %s" % [
 		_player.hearts, _player.max_hearts,
 		("ON" if _player.shield_active else "OFF"),
-		tool_name,
-		inv.get_count(ItemIds.ARROW),
-		inv.get_count(ItemIds.SMALL_KEY),
-		inv.get_count(ItemIds.HEART_PIECE),
 	]
 
 

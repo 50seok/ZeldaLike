@@ -59,6 +59,11 @@ func _ready() -> void:
 	ui.add_child(dialogue_box)
 	dialogue_box.add_to_group("dialogue_box")
 
+	var hotbar := Hotbar.new()
+	hotbar.position = Vector2(20, 210)
+	hotbar.player = _player
+	ui.add_child(hotbar)
+
 	var quest_label := QuestTracker.new()
 	quest_label.position = Vector2(750, 20)
 	quest_label.size = Vector2(380, 60)
@@ -201,12 +206,9 @@ func _process(_delta: float) -> void:
 	if not is_instance_valid(_player):
 		return
 	var zone_name := _zone_ctrl.current_zone.zone_name if _zone_ctrl.current_zone else "?"
-	var tool_names := {Player.ToolType.NORMAL: "일반", Player.ToolType.FIRE: "불", Player.ToolType.ELECTRIC: "전기"}
-	_status_label.text = "현재 구역: %s | 하트: %.1f/%.1f | 방패: %s | 화살속성: %s | 화살: %d" % [
+	_status_label.text = "현재 구역: %s | 하트: %.1f/%.1f | 방패: %s" % [
 		zone_name, _player.hearts, _player.max_hearts,
 		("ON" if _player.shield_active else "OFF"),
-		tool_names[_player.current_tool],
-		_player.inventory.get_count(ItemIds.ARROW),
 	]
 
 
