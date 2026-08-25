@@ -144,8 +144,12 @@ func _process(_delta: float) -> void:
 	if not is_instance_valid(_player):
 		return
 	var zone_name := _zone_ctrl.current_zone.zone_name if _zone_ctrl.current_zone else "?"
-	_status_label.text = "현재 구역: %s | 하트: %.1f/%.1f | 화살: %d" % [
-		zone_name, _player.hearts, _player.max_hearts, _player.inventory.get_count(ItemIds.ARROW)
+	var tool_names := {Player.ToolType.NORMAL: "일반", Player.ToolType.FIRE: "불", Player.ToolType.ELECTRIC: "전기"}
+	_status_label.text = "현재 구역: %s | 하트: %.1f/%.1f | 방패: %s | 화살속성: %s | 화살: %d" % [
+		zone_name, _player.hearts, _player.max_hearts,
+		("ON" if _player.shield_active else "OFF"),
+		tool_names[_player.current_tool],
+		_player.inventory.get_count(ItemIds.ARROW),
 	]
 
 
