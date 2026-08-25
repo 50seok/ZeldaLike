@@ -80,18 +80,25 @@ func take_damage(amount: float) -> void:
 func perform_melee_attack() -> void:
 	did_attack.emit("칼")
 	for node in get_tree().get_nodes_in_group("combatant_enemies"):
-		if not is_instance_valid(node):
-			continue
-		var to_target: Vector2 = node.global_position - global_position
-		if to_target.length() <= sword_range and to_target.normalized().dot(facing) > 0.3:
+		if is_instance_valid(node) and _is_in_melee_range(node):
 			node.take_damage(sword_damage)
 	# 수풀 등 환경 오브젝트는 HP가 없어 take_damage가 아니라 즉시 파괴(cut_down)
 	for node in get_tree().get_nodes_in_group("cuttable_props"):
-		if not is_instance_valid(node):
-			continue
-		var to_target: Vector2 = node.global_position - global_position
-		if to_target.length() <= sword_range and to_target.normalized().dot(facing) > 0.3:
+		if is_instance_valid(node) and _is_in_melee_range(node):
 			node.cut_down()
+
+
+## 아주 가까운 거리(point-blank)에서는 방향 벡터 길이가 0에 가까워져 dot product
+## 방향 판정이 불안정해진다 — 딱 붙었을 때 오히려 안 맞는 것처럼 느껴지던 원인
+## (실측 지적). 근접 반경(sword_range의 절반) 안에서는 방향 무관하게 명중으로 친다.
+func _is_in_melee_range(node: Node2D) -> bool:
+	var to_target: Vector2 = node.global_position - global_position
+	var dist := to_target.length()
+	if dist > sword_range:
+		return false
+	if dist <= sword_range * 0.5:
+		return true
+	return to_target.normalized().dot(facing) > 0.3
 
 
 func perform_bow_attack() -> void:
