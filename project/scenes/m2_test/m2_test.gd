@@ -63,6 +63,7 @@ func _run_all_tests() -> void:
 	await _test_pickup_throw()
 	await _test_fire_right_self_safety()
 	await _test_burn_is_damage_over_time()
+	await _test_vine_leash_prevents_room_crossing()
 
 
 func _test_melee() -> void:
@@ -209,6 +210,29 @@ func _test_burn_is_damage_over_time() -> void:
 
 	if is_instance_valid(target):
 		target.queue_free()
+	await get_tree().create_timer(0.1).timeout
+
+
+## 실측 지적("몬스터들은 따라오지 못하게 해야할듯" - 던전 보스방 페이즈2가
+## 소환하는 덩굴이가 옆방까지 새는 경우) 재발 방지 - 스폰 지점에서 leash_distance
+## 밖으로는 쫓아가도 실제로 움직이지 않아야 한다.
+func _test_vine_leash_prevents_room_crossing() -> void:
+	var vine := VineEnemy.new()
+	vine.global_position = Vector2(2000, 100)
+	vine.detect_radius = 1000.0  # 이 테스트는 목줄만 격리해서 확인 - 감지범위는 넉넉히 열어둠
+	vine.leash_distance = 300.0
+	add_child(vine)
+	var spawn := vine.global_position
+	var player := _spawn_player(spawn + Vector2(800, 0))  # 목줄(300)보다 훨씬 먼 곳(= 옆방 상당)
+	await get_tree().physics_frame
+
+	await get_tree().create_timer(1.0).timeout  # 목줄 끝까지 이동할 시간을 충분히 줌
+	var dist_from_spawn := vine.global_position.distance_to(spawn)
+	_check("I 쫓아오다가도 -> 스폰에서 목줄 거리 이상은 못 벗어남(옆방 진입 방지)", dist_from_spawn <= vine.leash_distance + 5.0)
+	_check("I 목줄 범위 안에서는 -> 실제로 쫓아가려 함(가만히 안 있음)", dist_from_spawn > 10.0)
+
+	player.queue_free()
+	vine.queue_free()
 	await get_tree().create_timer(0.1).timeout
 
 

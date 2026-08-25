@@ -109,8 +109,19 @@ func _ready() -> void:
 
 	# world_test.tscn과 동일한 이어하기 방식 - 저장이 있으면(월드에서 넘어왔거나
 	# 타이틀 "이어하기"로 던전 도중부터 시작하는 경우) 여기서 상태를 덮어쓴다.
+	#
+	# 단, 위치는 "저장된 씬이 바로 이 던전 씬일 때만" 그대로 믿는다. world_test에서
+	# 입구를 넘어오는 순간 저장한 좌표(예: 필드 x≈2300)는 world_test의 좌표계일
+	# 뿐인데, 그 값을 던전의 방 격자 좌표에 그대로 대입하면 엉뚱한 방(전기스위치방,
+	# 심하면 그 너머)에 떨어져 입구/퍼즐을 통째로 건너뛰어 버렸다(실측 확인:
+	# "퍼즐 없이 바로 보스방이던데?"). 다른 씬에서 넘어온 거면 하트/인벤토리/
+	# 플래그만 받고 위치는 던전 자체 스폰(입구)으로 남긴다.
 	if SaveManager.has_save():
+		var came_from_this_scene := SaveManager.get_saved_scene_path() == scene_file_path
+		var entry_position := _player.global_position
 		SaveManager.load_game(_player)
+		if not came_from_this_scene:
+			_player.global_position = entry_position
 		_log("저장된 게임을 이어서 불러왔습니다")
 
 	# 퍼즐 ① - 입구를 막은 마른 수풀. 베거나 태우면 사라져 다음 방으로 갈 수 있다.
@@ -199,7 +210,17 @@ func _ready() -> void:
 		var phase_names := {ChaosCore.Phase.TWO: "2(얼음+덩굴이 소환)", ChaosCore.Phase.THREE: "3(속도+탄막 증가)"}
 		_log("혼돈의 코어 -> 페이즈 %s 돌입!" % phase_names.get(new_phase, str(new_phase)))
 	)
+	# §4.1 "보스전" 관례 - 보스 방에 들어가면 격파 전까지 못 나가게 문을 다시
+	# 잠근다(실측 지적: "보스방 들어가면 잡기 전까지는 못나가는 게 맞는 것 같음").
+	# boss_door는 이미 열쇠로 한 번 열렸던 문이지만 lock()은 상태만 다시 잠그므로
+	# 문제없다.
+	_zone_ctrl.zone_changed.connect(func(zone):
+		if zone and zone.zone_name == "보스 방" and is_instance_valid(boss):
+			boss_door.lock()
+			_log("문이 닫혔다 - 혼돈의 코어를 물리쳐야 나갈 수 있다!")
+	)
 	boss.defeated.connect(func():
+		boss_door.unlock()
 		_log("혼돈의 코어 격파! 승리!")
 		get_tree().change_scene_to_file("res://scenes/ending/ending.tscn")
 	)

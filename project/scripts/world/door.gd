@@ -52,6 +52,15 @@ func unlock() -> void:
 	unlocked.emit()
 
 
+## 보스 방처럼 "들어가면 격파 전까지 못 나가는" 문에 쓴다 - 이미 한 번 열렸던
+## (그래서 required_key가 이미 소모된) 문도 다시 잠글 수 있다.
+func lock() -> void:
+	if locked:
+		return
+	locked = true
+	queue_redraw()
+
+
 ## 가장 가까운 경계 쪽으로 최소 이동시켜 문 사각형 밖으로 밀어낸다. 정확히
 ## 경계선 위에 놓으면 Rect2.has_point()의 경계 포함 규칙 때문에 여전히 "안쪽"으로
 ## 판정될 수 있어(실측 확인), epsilon만큼 더 밀어 확실히 밖으로 낸다.

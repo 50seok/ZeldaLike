@@ -198,10 +198,16 @@ func _ready() -> void:
 	add_child(item_mgr)
 	item_mgr.setup(camera)
 
-	# 타이틀 화면이 아직 없어(M4 스코프) "이어하기"를 씬 시작 시 자동 적용으로 대신한다 -
-	# 저장이 있으면 플레이어 상태+스토리 플래그를 여기서 덮어쓴다.
+	# 저장이 있으면 플레이어 상태+스토리 플래그를 여기서 덮어쓴다. 위치는 저장된
+	# 씬이 이 씬 자신일 때만 신뢰한다 - 다른 씬(예: 던전) 좌표계에서 저장된 값을
+	# 그대로 대입하면 엉뚱한 곳에 떨어진다(dungeon_test.gd에서 실측 확인된 문제와
+	# 동일 - 지금은 던전->월드 복귀 경로가 없어 당장 터지진 않지만 대칭적으로 방지).
 	if SaveManager.has_save():
+		var came_from_this_scene := SaveManager.get_saved_scene_path() == scene_file_path
+		var entry_position := _player.global_position
 		SaveManager.load_game(_player)
+		if not came_from_this_scene:
+			_player.global_position = entry_position
 		_log("저장된 게임을 이어서 불러왔습니다")
 
 	# 우선순위4(NPC 대화 + 스토리 플래그, §3.4) - 기능 NPC 1(촌장, sets_flag)과

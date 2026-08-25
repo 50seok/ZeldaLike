@@ -38,6 +38,7 @@ func _run_all_tests() -> void:
 	await _test_treasure_chest()
 	await _test_ice_melt_puzzle_wiring()
 	await _test_switch_unlocks_door_integration()
+	await _test_relock_boss_room_door()
 
 
 func _spawn_player(pos: Vector2) -> Player:
@@ -201,6 +202,40 @@ func _test_switch_unlocks_door_integration() -> void:
 	door.queue_free()
 	switch.queue_free()
 	conductor.queue_free()
+	await get_tree().create_timer(0.1).timeout
+
+
+## §4.1 보스 방 관례("들어가면 격파 전까지 못 나감") - 실측 지적으로 추가된
+## Door.lock(). 이미 열쇠로 한 번 열렸던 문(키 소모됨)도 다시 잠기고, 다시
+## 밀어내는지 확인한다.
+func _test_relock_boss_room_door() -> void:
+	var player := Player.new()
+	player.global_position = Vector2(1300, 100)
+	add_child(player)
+
+	var door := Door.new()
+	door.required_key = ItemIds.BOSS_KEY
+	door.global_position = Vector2(1300, 200)
+	add_child(door)
+	player.inventory.add(ItemIds.BOSS_KEY, 1)
+	await get_tree().physics_frame
+
+	player.global_position = Vector2(1300, 200)  # 열쇠로 최초 통과
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	_check("G 열쇠로 최초 통과 -> 문 열림+열쇠 소모", not door.locked and player.inventory.get_count(ItemIds.BOSS_KEY) == 0)
+
+	player.global_position = Vector2(1400, 200)  # 문을 지나 반대편으로 이동
+	door.lock()
+	_check("G lock() 재호출 -> 다시 잠김(소모된 열쇠와 무관)", door.locked)
+
+	player.global_position = Vector2(1300, 200)  # 다시 문으로 접근(나가려는 시도)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	_check("G 재잠금 후 -> 열쇠 없어 못 나가고 밀려남", door.locked and not door.bounds.has_point(player.global_position - door.global_position))
+
+	player.queue_free()
+	door.queue_free()
 	await get_tree().create_timer(0.1).timeout
 
 
