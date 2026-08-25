@@ -53,8 +53,13 @@ func _ready() -> void:
 	var ui := CanvasLayer.new()
 	add_child(ui)
 
+	# 실측 지적("초원에서 던전 가는 길을 모르겠음") 원인 - 이 텍스트가 한 줄로
+	# 너무 길어서 줄바꿈 없이 화면을 가로질러 QuestTracker(x=750 위치)까지
+	# 침범해 서로 겹쳐 읽을 수 없는 글자 뭉치가 됐었다. 폭 제한+자동 줄바꿈으로 수정.
 	var help := Label.new()
 	help.position = Vector2(20, 20)
+	help.size = Vector2(700, 60)
+	help.autowrap_mode = TextServer.AUTOWRAP_WORD
 	help.add_theme_font_size_override("font_size", 16)
 	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Space 줍기/던지기/대화(대화 중엔 다음 줄) · V 내려놓기 · Tab 화살속성 전환(일반/불/전기)\n마을(안전, 촌장/주민 NPC 있음)->초원(덩굴이+수풀, 리젠됨)->더 오른쪽: 우드가드(불화살로 방패 태우기, 방패 있어도 근접하면 반격함)/엠버(물항아리로 즉사)/아이언셸(물+전기 콤보로 스턴시킨 뒤 3방 더 때려야 처치)"
 	ui.add_child(help)
@@ -87,7 +92,7 @@ func _ready() -> void:
 	quest_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	quest_label.steps = [
 		{"flag": "met_chief", "text": "옹달마을 촌장에게 말을 걸어보자"},
-		{"flag": "", "text": "초원을 지나 유적으로 향하자"},
+		{"flag": "", "text": "초원을 계속 오른쪽(동쪽)으로 가면 유적 입구가 나온다"},
 	]
 	ui.add_child(quest_label)
 
