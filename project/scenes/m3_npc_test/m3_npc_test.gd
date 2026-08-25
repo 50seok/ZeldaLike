@@ -35,6 +35,7 @@ func _run_all_tests() -> void:
 	await _test_functional_npc_sets_flag()
 	await _test_flavor_npc_line_swap()
 	await _test_player_integration_multi_line()
+	await _test_quest_tracker()
 
 
 func _test_dialogue_typewriter() -> void:
@@ -157,6 +158,27 @@ func _test_player_integration_multi_line() -> void:
 	player.queue_free()
 	chief.queue_free()
 	box.queue_free()
+	await get_tree().create_timer(0.1).timeout
+
+
+## "퀘스트 방식 스토리"를 원한다는 요청에 대한 최소 확장 - 대화 분기·퀘스트 로그가
+## 아니라 기존 스토리 플래그를 그대로 재사용하는 "현재 목표 한 줄" 표시 UI(PRD §4
+## 비스코프 유지).
+func _test_quest_tracker() -> void:
+	var tracker := QuestTracker.new()
+	tracker.steps = [
+		{"flag": "q_test_a", "text": "A 단계"},
+		{"flag": "", "text": "B 단계"},
+	]
+	add_child(tracker)
+	await get_tree().process_frame
+
+	_check("E 플래그 전 -> 첫 단계 목표 표시", tracker.text == "목표: A 단계")
+	StoryFlags.set_flag("q_test_a")
+	await get_tree().process_frame
+	_check("E 플래그 세워짐(signal) -> 다음 단계로 자동 갱신", tracker.text == "목표: B 단계")
+
+	tracker.queue_free()
 	await get_tree().create_timer(0.1).timeout
 
 

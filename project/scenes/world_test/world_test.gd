@@ -59,6 +59,16 @@ func _ready() -> void:
 	ui.add_child(dialogue_box)
 	dialogue_box.add_to_group("dialogue_box")
 
+	var quest_label := QuestTracker.new()
+	quest_label.position = Vector2(750, 20)
+	quest_label.size = Vector2(380, 60)
+	quest_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	quest_label.steps = [
+		{"flag": "met_chief", "text": "옹달마을 촌장에게 말을 걸어보자"},
+		{"flag": "", "text": "초원을 지나 유적으로 향하자"},
+	]
+	ui.add_child(quest_label)
+
 	_player.did_attack.connect(func(kind): _log("플레이어 %s 공격!" % kind))
 	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))
 	# 테스트 씬 전용 편의 기능 - 죽으면 플레이어가 그냥 사라지고 끝이라 재시작할 방법이
