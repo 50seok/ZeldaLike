@@ -9,6 +9,7 @@ extends Area2D
 
 signal shocked
 signal chem_state_changed(new_state: int)
+signal burned_out
 
 @export var chem_material: int = ChemTypes.MaterialTag.WOOD
 @export var display_name: String = ""
@@ -85,6 +86,7 @@ func _process(delta: float) -> void:
 	if state == ChemTypes.State.BURNING and chem_material in FLAMMABLE:
 		_burn_timer += delta
 		if _burn_timer >= burn_duration:
+			burned_out.emit()
 			queue_free()
 
 
