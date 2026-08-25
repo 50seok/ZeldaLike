@@ -75,7 +75,11 @@ func _ready() -> void:
 	_player.did_attack.connect(func(kind): _log("플레이어 %s 공격!" % kind))
 	_player.did_shield_toggle.connect(func(active): _log("방패 %s" % ("ON" if active else "OFF")))
 	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))
-	_player.died.connect(func(): _log("플레이어 사망..."))
+	_player.died.connect(func():
+		_log("플레이어 사망... 2초 후 재시작")
+		await get_tree().create_timer(2.0).timeout
+		get_tree().reload_current_scene()
+	)
 	_player.item_collected.connect(func(item_id, count): _log("%s 획득! (+%d)" % [_item_display_name(item_id), count]))
 	_player.did_interact.connect(func(result): _log("Space -> %s" % result))
 	_vine.damaged.connect(func(amount): _log("덩굴이 피격 -%.1f" % amount))

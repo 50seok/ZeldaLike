@@ -57,7 +57,14 @@ func _ready() -> void:
 
 	_player.did_attack.connect(func(kind): _log("플레이어 %s 공격!" % kind))
 	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))
-	_player.died.connect(func(): _log("플레이어 사망..."))
+	# 테스트 씬 전용 편의 기능 - 죽으면 플레이어가 그냥 사라지고 끝이라 재시작할 방법이
+	# 없었다(실측 지적). 정식 게임오버 화면은 후순위(M4/M5) 스코프라, 지금은 씬 리로드로
+	# 대체한다.
+	_player.died.connect(func():
+		_log("플레이어 사망... 2초 후 재시작")
+		await get_tree().create_timer(2.0).timeout
+		get_tree().reload_current_scene()
+	)
 	_player.item_collected.connect(func(item_id, count): _log("아이템 획득 +%d" % count))
 	_player.did_interact.connect(func(result): _log("Space -> %s" % result))
 
