@@ -18,7 +18,13 @@ enum Phase { ONE, TWO, THREE }
 @export var fireball_damage: float = 0.5
 @export var stun_duration: float = 3.0
 @export var chase_distance: float = 60.0
-@export var detect_radius: float = 650.0  # boss_test.tscn 아레나 전체(대각선 약 636)를 덮되, 던전 방 하나(800x600) 밖까지는 안 나가는 값
+## dungeon_test.tscn의 실제 보스방(800x600)에 보스를 방 정중앙에 두면, 가장
+## 가까운 옆방과의 벽까지 거리가 400이다 - 650은 그보다 커서 옆방까지 계속
+## 새어나갔다(실측 재확인: "문 고치니 다시 옆방 몬스터가 공격함" - 문 자체
+## 문제가 아니라 감지범위가 방 하나보다 컸던 게 원인). 400보다 확실히 작은
+## 값으로 낮춘다 - boss_test.tscn의 물웅덩이(거리~390)에서도 잠깐 안전해지는
+## 효과가 생기지만, 그건 자원 보충 지점이 안전해지는 거라 오히려 자연스럽다.
+@export var detect_radius: float = 380.0
 
 var phase: Phase = Phase.ONE
 var hit_count: int = 0

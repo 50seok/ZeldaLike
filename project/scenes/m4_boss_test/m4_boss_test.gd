@@ -44,6 +44,7 @@ func _run_all_tests() -> void:
 	await _test_full_defeat_loop()
 	await _test_fireball_attack()
 	await _test_out_of_range_does_not_attack()
+	await _test_detect_radius_fits_dungeon_room_size()
 
 
 ## 콤보 3회(물+전기 스턴 → 공격 1회) 전체 흐름을 하나로 이어서 확인 -
@@ -169,6 +170,34 @@ func _test_out_of_range_does_not_attack() -> void:
 
 	boss.queue_free()
 	far_player.queue_free()
+	await get_tree().create_timer(0.1).timeout
+
+
+## 실측 재발("문 고치니 다시 옆방 몬스터가 공격함") 방지 - detect_radius 값
+## 자체가 dungeon_test.tscn의 실제 보스방 크기(800x600, 보스는 방 정중앙)보다
+## 커서 옆방까지 새던 문제였다. 그 정확한 기하 조건을 재현해 고정한다:
+## 방 정중앙에 있는 보스 기준, 옆방과 맞닿은 벽(중앙에서 400 거리) 바로
+## 너머는 반드시 범위 밖이어야 한다.
+func _test_detect_radius_fits_dungeon_room_size() -> void:
+	var room_half_width := 400.0  # dungeon_test.tscn 보스방(800 폭)의 절반 - 보스는 방 정중앙에 있음
+	var boss := ChaosCore.new()
+	boss.global_position = Vector2(2000, 300)
+	boss.fireball_cooldown = 0.05
+	add_child(boss)
+
+	# 옆방으로 살짝 넘어간 위치(벽+20) - 여기선 절대 반응하면 안 된다.
+	var next_room_player := _dummy_player_at(boss.global_position + Vector2(room_half_width + 20, 0))
+	add_child(next_room_player)
+	await get_tree().physics_frame
+	await get_tree().create_timer(0.2).timeout
+
+	_check("H detect_radius < 방 절반거리(400) - 옆방 침범 안 함", boss.detect_radius < room_half_width)
+	var fireballs := get_children().filter(func(n): return n is Arrow)
+	_check("H 옆방으로 넘어간 위치 -> 화염구 안 날아옴", fireballs.is_empty())
+
+	boss.queue_free()
+	next_room_player.queue_free()
+	_clear_fireballs()
 	await get_tree().create_timer(0.1).timeout
 
 
