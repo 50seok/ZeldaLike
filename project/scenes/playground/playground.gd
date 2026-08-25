@@ -77,6 +77,8 @@ func _ready() -> void:
 	hotbar.player = _player
 	ui.add_child(hotbar)
 
+	ui.add_child(PauseMenu.new())
+
 	_player.did_attack.connect(func(kind): _log("플레이어 %s 공격!" % kind))
 	_player.did_shield_toggle.connect(func(active): _log("방패 %s" % ("ON" if active else "OFF")))
 	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))

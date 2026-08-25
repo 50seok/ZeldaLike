@@ -27,6 +27,14 @@ func has_save() -> bool:
 	return FileAccess.file_exists(save_path)
 
 
+## §4 타이틀 "새 게임" - 이어하기가 아니라 진짜 처음부터 시작하려면 기존 저장을
+## 무시해야 한다(안 지우면 다음 구역 진입 자동저장 전까지는 옛 세이브가 남아있어,
+## 도중에 죽어 씬이 리로드되면 그 옛 데이터로 이어하기가 돼버림).
+func delete_save() -> void:
+	if has_save():
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path))
+
+
 func load_game(player: Player) -> bool:
 	if not has_save():
 		return false

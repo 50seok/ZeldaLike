@@ -64,6 +64,8 @@ func _ready() -> void:
 	hotbar.player = _player
 	ui.add_child(hotbar)
 
+	ui.add_child(PauseMenu.new())
+
 	var quest_label := QuestTracker.new()
 	quest_label.position = Vector2(750, 20)
 	quest_label.size = Vector2(380, 60)

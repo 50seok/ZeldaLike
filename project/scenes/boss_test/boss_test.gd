@@ -65,6 +65,8 @@ func _ready() -> void:
 	hotbar.player = _player
 	ui.add_child(hotbar)
 
+	ui.add_child(PauseMenu.new())
+
 	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))
 	_player.died.connect(func():
 		_log("플레이어 사망... 2초 후 재시작")
