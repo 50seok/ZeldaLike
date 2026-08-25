@@ -41,7 +41,7 @@ func _ready() -> void:
 	var help := Label.new()
 	help.position = Vector2(20, 20)
 	help.add_theme_font_size_override("font_size", 16)
-	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Space 줍기/던지기 · V 내려놓기 · Tab 화살속성 전환(일반/불/전기)\n마을(안전)->초원(덩굴이+수풀, 리젠됨)->더 오른쪽: 우드가드(불화살로 방패 태우기, 방패 있어도 근접하면 반격함)/엠버(물항아리로 즉사)/아이언셸(물+전기 콤보로 스턴시킨 뒤 3방 더 때려야 처치)"
+	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Space 줍기/던지기/대화(대화 중엔 다음 줄) · V 내려놓기 · Tab 화살속성 전환(일반/불/전기)\n마을(안전, 촌장/주민 NPC 있음)->초원(덩굴이+수풀, 리젠됨)->더 오른쪽: 우드가드(불화살로 방패 태우기, 방패 있어도 근접하면 반격함)/엠버(물항아리로 즉사)/아이언셸(물+전기 콤보로 스턴시킨 뒤 3방 더 때려야 처치)"
 	ui.add_child(help)
 
 	_status_label = Label.new()
@@ -54,6 +54,10 @@ func _ready() -> void:
 	_log_label.add_theme_font_size_override("font_size", 14)
 	_log_label.add_theme_color_override("font_color", Color(1, 0.9, 0.4))
 	ui.add_child(_log_label)
+
+	var dialogue_box := DialogueBox.new()
+	ui.add_child(dialogue_box)
+	dialogue_box.add_to_group("dialogue_box")
 
 	_player.did_attack.connect(func(kind): _log("플레이어 %s 공격!" % kind))
 	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))
@@ -145,6 +149,29 @@ func _ready() -> void:
 	item_mgr.field_cap = 2
 	add_child(item_mgr)
 	item_mgr.setup(camera)
+
+	# 우선순위4(NPC 대화 + 스토리 플래그, §3.4) - 기능 NPC 1(촌장, sets_flag)과
+	# 주민 NPC 1(requires_flag로 대사 교체)만 배치해 메커니즘을 확인한다.
+	# 나머지 기능 NPC 2명(대장장이·학자)·주민 2~3명·닭은 콘텐츠 저작(대사 작성)
+	# 문제라 나중 폴리시 단계에서 채우면 된다 - 지금은 시스템 자체가 맞는지가 목적.
+	var chief := NPC.new()
+	chief.npc_name = "촌장"
+	chief.lines = [
+		"어서 오게, 견습 연금술사여.",
+		"마을 지하 유적의 봉인이 풀려 원소가 날뛰고 있다네.",
+		"자네가 가서 좀 진정시켜 주게.",
+	]
+	chief.sets_flag = "met_chief"
+	chief.global_position = Vector2(200, 200)
+	add_child(chief)
+
+	var villager := NPC.new()
+	villager.npc_name = "마을 주민"
+	villager.lines = ["요즘 원소가 폭주해서 무서워 죽겠어..."]
+	villager.alt_lines = ["촌장님이 자네에게 부탁하셨다니, 마음이 좀 놓이는군."]
+	villager.requires_flag = "met_chief"
+	villager.global_position = Vector2(350, 150)
+	add_child(villager)
 
 
 func _process(_delta: float) -> void:

@@ -26,6 +26,7 @@ var current_tool: ToolType = ToolType.NORMAL
 
 var _equipped_weapon: EquippedWeapon
 var _held_item: Throwable
+var _dialogue_box: DialogueBox
 
 
 @export var starting_arrows: int = 10
@@ -41,14 +42,31 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if _is_dialogue_open():
+		return
 	var move_vec := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	position += move_vec * move_speed * delta
 	if move_vec != Vector2.ZERO:
 		facing = move_vec.normalized()
 
 
+## 대화박스는 씬이 만들어 그룹("dialogue_box")에 등록해두면 여기서 찾는다 -
+## 매 프레임 그룹 조회를 피하려고 한 번 찾으면 캐싱한다(다른 몹들의 _player
+## 캐싱과 동일 패턴).
+func _is_dialogue_open() -> bool:
+	if _dialogue_box == null or not is_instance_valid(_dialogue_box):
+		_dialogue_box = get_tree().get_first_node_in_group("dialogue_box")
+	return _dialogue_box != null and _dialogue_box.is_open()
+
+
+## 대화 중엔 Space가 "다음 줄/닫기" 전용이 되고, 그 외 입력은 전부 막는다
+## (대화 중에 칼을 휘두르거나 걸어 나가는 걸 막기 위함 - 젤다 관례).
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
+		if _is_dialogue_open():
+			if event.keycode == KEY_SPACE:
+				_dialogue_box.advance()
+			return
 		match event.keycode:
 			KEY_Z:
 				perform_melee_attack()
@@ -145,12 +163,25 @@ func interact_or_throw() -> void:
 		_held_item = null
 		return
 	for area in get_overlapping_areas():
+		if area is NPC:
+			if _is_dialogue_open():
+				return
+			did_interact.emit("대화 시작")
+			area.talk(_get_or_find_dialogue_box())
+			return
+	for area in get_overlapping_areas():
 		if area is Throwable:
 			did_interact.emit("주움")
 			_held_item = area
 			area.pick_up(self)
 			return
 	did_interact.emit("주울 것 없음")
+
+
+func _get_or_find_dialogue_box() -> DialogueBox:
+	if _dialogue_box == null or not is_instance_valid(_dialogue_box):
+		_dialogue_box = get_tree().get_first_node_in_group("dialogue_box")
+	return _dialogue_box
 
 
 ## Space(던지기)와 분리한 이유: 실수로 던지지 않고 제자리에 놓고 싶을 때

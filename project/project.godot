@@ -17,6 +17,7 @@ config/features=PackedStringArray("4.7", "GL Compatibility")
 [autoload]
 
 ChemistryManager="*res://scripts/chemistry/chemistry_manager.gd"
+StoryFlags="*res://scripts/story/story_flags.gd"
 
 [rendering]
 
