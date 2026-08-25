@@ -46,8 +46,11 @@ func _side_matches(rule_mat: int, rule_state: int, actual_mat: int, actual_state
 func _apply(actor: ChemActor, affects: bool, result_state: int, convert_material: int, shock: bool) -> void:
 	if not affects:
 		return
-	actor.set_state(result_state)
+	# 재질을 먼저 바꾸고 상태를 나중에 바꾼다 — set_state()가 라벨을 갱신하는데,
+	# 순서가 반대면 "재질은 이미 바뀌었지만 라벨은 옛 재질로 갱신"되는 버그가 난다
+	# (실측 확인: 얼음이 물로 바뀌었는데 라벨은 "ICE/NONE"으로 남음).
 	if convert_material != ChemTypes.MaterialTag.NONE:
 		actor.chem_material = convert_material
+	actor.set_state(result_state)
 	if shock:
 		actor.shocked.emit()
