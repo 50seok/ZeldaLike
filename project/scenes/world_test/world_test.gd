@@ -77,12 +77,12 @@ func _ready() -> void:
 	_zone_ctrl.zone_changed.connect(func(zone): _log("%s 진입" % (zone.zone_name if zone else "경계 밖")))
 
 	var sp1 := SpawnPoint.new()
-	sp1.monster_type = "vine"
+	sp1.entity_type = "vine"
 	sp1.respawn_sec = 8.0  # 실제 기본값(45초)은 너무 길어 수동 테스트용으로 단축
 	sp1.position = Vector2(1000, 250)
 	add_child(sp1)
 	var sp2 := SpawnPoint.new()
-	sp2.monster_type = "vine"
+	sp2.entity_type = "vine"
 	sp2.respawn_sec = 8.0
 	sp2.position = Vector2(1150, 400)
 	add_child(sp2)
@@ -92,7 +92,7 @@ func _ready() -> void:
 	spawn_mgr.field_cap = 5
 	add_child(spawn_mgr)
 	spawn_mgr.setup(camera)
-	spawn_mgr.monster_spawned.connect(_on_monster_spawned)
+	spawn_mgr.entity_spawned.connect(_on_monster_spawned)
 
 	var grass1 := GrassPatch.new()
 	grass1.global_position = Vector2(1050, 500)
@@ -118,19 +118,25 @@ func _ready() -> void:
 	add_child(shell)
 	_on_monster_spawned(shell)
 
-	# 마을 근처 항아리 하나뿐이면 여기까지 들고 오기 번거로우니 근처에 더 배치
-	# (실측 지적 - "맵에 물 항아리가 없는데 어떻게 뿌려?")
-	var jar_ember := Throwable.new()
-	jar_ember.chem_material = ChemTypes.MaterialTag.WATER
-	jar_ember.display_name = "물항아리"
-	jar_ember.global_position = Vector2(1650, 420)
-	add_child(jar_ember)
+	# 물항아리도 몬스터처럼 스폰포인트로 리젠시킨다 — 한 번 던져 없어지면 그걸로
+	# 끝이라 계속 못 쓰던 문제(실측 지적: "항아리도 몬스터처럼 리젠돼야 할듯").
+	# 몬스터 마릿수 상한을 나눠 먹지 않게 아이템 전용 매니저를 따로 둔다.
+	var jar_sp1 := SpawnPoint.new()
+	jar_sp1.entity_type = "water_jar"
+	jar_sp1.respawn_sec = 10.0
+	jar_sp1.position = Vector2(1650, 420)
+	add_child(jar_sp1)
+	var jar_sp2 := SpawnPoint.new()
+	jar_sp2.entity_type = "water_jar"
+	jar_sp2.respawn_sec = 10.0
+	jar_sp2.position = Vector2(1850, 220)
+	add_child(jar_sp2)
 
-	var jar_shell := Throwable.new()
-	jar_shell.chem_material = ChemTypes.MaterialTag.WATER
-	jar_shell.display_name = "물항아리"
-	jar_shell.global_position = Vector2(1850, 220)
-	add_child(jar_shell)
+	var item_mgr := FieldSpawnManager.new()
+	item_mgr.spawn_points = [jar_sp1, jar_sp2]
+	item_mgr.field_cap = 2
+	add_child(item_mgr)
+	item_mgr.setup(camera)
 
 
 func _process(_delta: float) -> void:

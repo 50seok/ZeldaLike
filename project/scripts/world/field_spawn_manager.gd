@@ -1,15 +1,18 @@
 class_name FieldSpawnManager
 extends Node
 
-## §4.2 몬스터 리젠(혼합형 중 "필드=시간 기반"). 스폰포인트마다 죽으면 respawn_sec
-## 카운트다운을 시작하고, 만료됐을 때 ① 화면 밖 ② 필드 전체 마릿수 상한 이내
-## 둘 다 만족해야 다시 채운다(눈앞 팝인 금지, PRD §4.2).
+## §4.2 리젠(혼합형 중 "필드=시간 기반"). 몬스터 전용이 아니라 "소모되면 시간
+## 지나 다시 채워지는 것"의 범용 시스템 — 물항아리 같은 소모성 아이템도 같은
+## 매니저로 리젠한다(실측 지적: "몬스터만 리젠되고 항아리는 안 됨").
+## 스폰포인트마다 죽거나(몬스터) 소모되면(아이템) respawn_sec 카운트다운을 시작,
+## 만료됐을 때 ① 화면 밖 ② 필드 전체 개수 상한 이내 둘 다 만족해야 다시 채운다
+## (눈앞 팝인 금지, PRD §4.2). 몬스터/아이템을 같은 상한으로 묶고 싶지 않으면
+## world_test.gd처럼 매니저를 용도별로 따로 두면 된다.
 ##
-## 몬스터 종류 팩토리(_create_monster)는 우선순위3(몬스터 추가)에서 여기에
-## match 분기만 늘리면 된다 — 데이터(SpawnPoint.monster_type)는 이미 문자열이라
-## 새 종류 추가에 이 파일 수정 1곳이면 충분.
+## 엔티티 팩토리(_create_entity)는 새 종류 추가 시 여기에 match 분기만 늘리면
+## 된다 — 데이터(SpawnPoint.entity_type)는 이미 문자열이라 이 파일 수정 1곳이면 충분.
 
-signal monster_spawned(monster: Node)
+signal entity_spawned(entity: Node)
 
 @export var spawn_points: Array[SpawnPoint] = []
 @export var field_cap: int = 5
@@ -70,17 +73,17 @@ func _count_alive() -> int:
 
 
 func _do_spawn(sp: SpawnPoint) -> void:
-	var monster := _create_monster(sp.monster_type)
-	if monster == null:
+	var entity := _create_entity(sp.entity_type)
+	if entity == null:
 		return
-	monster.global_position = sp.global_position
-	get_parent().add_child(monster)
-	_alive[sp].append(monster)
-	monster_spawned.emit(monster)
+	entity.global_position = sp.global_position
+	get_parent().add_child(entity)
+	_alive[sp].append(entity)
+	entity_spawned.emit(entity)
 
 
-func _create_monster(monster_type: String) -> Combatant:
-	match monster_type:
+func _create_entity(entity_type: String) -> ChemActor:
+	match entity_type:
 		"vine":
 			return VineEnemy.new()
 		"wood_guard":
@@ -89,8 +92,13 @@ func _create_monster(monster_type: String) -> Combatant:
 			return Ember.new()
 		"iron_shell":
 			return IronShell.new()
+		"water_jar":
+			var jar := Throwable.new()
+			jar.chem_material = ChemTypes.MaterialTag.WATER
+			jar.display_name = "물항아리"
+			return jar
 		_:
-			push_warning("FieldSpawnManager: 알 수 없는 몬스터 타입 '%s'" % monster_type)
+			push_warning("FieldSpawnManager: 알 수 없는 엔티티 타입 '%s'" % entity_type)
 			return null
 
 

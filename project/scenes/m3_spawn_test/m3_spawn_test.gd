@@ -52,7 +52,7 @@ func _run_all_tests() -> void:
 
 func _test_respawn_when_offscreen() -> void:
 	var sp := SpawnPoint.new()
-	sp.monster_type = "vine"
+	sp.entity_type = "vine"
 	sp.respawn_sec = 0.2
 	sp.max_alive = 1
 	sp.position = Vector2(100, 100)
@@ -80,7 +80,7 @@ func _test_respawn_when_offscreen() -> void:
 
 func _test_no_respawn_when_onscreen() -> void:
 	var sp := SpawnPoint.new()
-	sp.monster_type = "vine"
+	sp.entity_type = "vine"
 	sp.respawn_sec = 0.2
 	sp.max_alive = 1
 	sp.position = Vector2(100, 100)
@@ -106,13 +106,13 @@ func _test_no_respawn_when_onscreen() -> void:
 
 func _test_field_cap_holds() -> void:
 	var sp1 := SpawnPoint.new()
-	sp1.monster_type = "vine"
+	sp1.entity_type = "vine"
 	sp1.respawn_sec = 0.2
 	sp1.position = Vector2(100, 100)
 	add_child(sp1)
 
 	var sp2 := SpawnPoint.new()
-	sp2.monster_type = "vine"
+	sp2.entity_type = "vine"
 	sp2.respawn_sec = 0.2
 	sp2.position = Vector2(130, 100)
 	add_child(sp2)
