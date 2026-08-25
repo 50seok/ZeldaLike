@@ -125,8 +125,13 @@ func _ready() -> void:
 	key_chest.global_position = Vector2(1000, 300)
 	add_child(key_chest)
 
+	# Door 기본 경계(32x80)는 문 좌우의 좁은 띠만 막아서, 방 전체 높이(600)
+	# 기준으로는 위아래로 빙 돌아가면 잠긴 문을 그냥 지나칠 수 있었다(실측
+	# 지적: "문을 해제 안해도 다음으로 넘어가짐"). 방 높이 전체를 막는 세로 벽
+	# 크기로 지정한다(세로 통로 문은 반대로 폭 전체를 막아야 함 - secret_door).
 	var key_door := Door.new()
 	key_door.required_key = ItemIds.SMALL_KEY
+	key_door.bounds = Rect2(-16, -300, 32, 600)
 	key_door.global_position = Vector2(1595, 300)
 	add_child(key_door)
 
@@ -137,6 +142,7 @@ func _ready() -> void:
 	add_child(switch)
 
 	var switch_door := Door.new()
+	switch_door.bounds = Rect2(-16, -300, 32, 600)
 	switch_door.global_position = Vector2(2395, 300)
 	add_child(switch_door)
 	switch.activated.connect(func():
@@ -153,7 +159,10 @@ func _ready() -> void:
 	add_child(ice_block)
 	ice_block.set_state(ChemTypes.State.FROZEN)
 
+	# 이 문은 방 사이 가로 통로(room_c 아래쪽 = room_secret)라 세로 문과 반대로
+	# 폭 전체(800)를 막고 높이만 좁게 잡는다.
 	var secret_door := Door.new()
+	secret_door.bounds = Rect2(-400, -16, 800, 32)
 	secret_door.global_position = Vector2(1900, 600)
 	add_child(secret_door)
 	ice_block.chem_state_changed.connect(func(new_state):
@@ -177,6 +186,7 @@ func _ready() -> void:
 
 	var boss_door := Door.new()
 	boss_door.required_key = ItemIds.BOSS_KEY
+	boss_door.bounds = Rect2(-16, -300, 32, 600)
 	boss_door.global_position = Vector2(3195, 300)
 	add_child(boss_door)
 
