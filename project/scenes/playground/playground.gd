@@ -76,18 +76,33 @@ func _ready() -> void:
 	_player.did_shield_toggle.connect(func(active): _log("방패 %s" % ("ON" if active else "OFF")))
 	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))
 	_player.died.connect(func(): _log("플레이어 사망..."))
+	_player.item_collected.connect(func(item_id, count): _log("%s 획득! (+%d)" % [_item_display_name(item_id), count]))
 	_vine.damaged.connect(func(amount): _log("덩굴이 피격 -%.1f" % amount))
 	_vine.died.connect(func(): _log("덩굴이 처치!"))
+
+
+func _item_display_name(item_id: String) -> String:
+	match item_id:
+		ItemIds.HEART: return "하트"
+		ItemIds.ARROW: return "화살"
+		ItemIds.SMALL_KEY: return "작은 열쇠"
+		ItemIds.BOSS_KEY: return "보스 열쇠"
+		ItemIds.HEART_PIECE: return "하트조각"
+		_: return item_id
 
 
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_player):
 		return
 	var tool_name := "불" if _player.current_tool == Player.ToolType.FIRE else "일반"
-	_status_label.text = "하트: %.1f/%.1f | 방패: %s | 화살: %s" % [
+	var inv := _player.inventory
+	_status_label.text = "하트: %.1f/%.1f | 방패: %s | 화살속성: %s | 소지: 화살 %d · 열쇠 %d · 하트조각 %d" % [
 		_player.hearts, _player.max_hearts,
 		("ON" if _player.shield_active else "OFF"),
 		tool_name,
+		inv.get_count(ItemIds.ARROW),
+		inv.get_count(ItemIds.SMALL_KEY),
+		inv.get_count(ItemIds.HEART_PIECE),
 	]
 
 
