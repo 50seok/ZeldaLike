@@ -13,6 +13,17 @@ var _status_label: Label
 var _log_label: Label
 var _log_lines: Array[String] = []
 
+var _arena_bounds := Rect2(-50, -50, 900, 700)
+
+
+## world_test/dungeon_test와 달리 이 씬엔 바닥 배경이 없어서(실측 지적: "내가
+## 어디있는지도 모르겠고 움직여지지도 않음") 어두운 기본 배경에 32px짜리
+## 캐릭터만 떠 있어 위치/이동을 체감하기 어려웠다. 아레나 바닥+경계선을 그려
+## 시각적 기준점을 준다.
+func _draw() -> void:
+	draw_rect(_arena_bounds, Color(0.16, 0.12, 0.12))
+	draw_rect(_arena_bounds, Color(0.5, 0.15, 0.15), false, 4.0)
+
 
 func _ready() -> void:
 	_player = Player.new()
@@ -25,7 +36,7 @@ func _ready() -> void:
 	add_child(_player)
 
 	var camera := Camera2D.new()
-	camera.zoom = Vector2(1.1, 1.1)
+	camera.zoom = Vector2(1.3, 1.3)
 	_player.add_child(camera)
 	camera.make_current()
 
