@@ -118,6 +118,20 @@ func _ready() -> void:
 	add_child(shell)
 	_on_monster_spawned(shell)
 
+	# 마을 근처 항아리 하나뿐이면 여기까지 들고 오기 번거로우니 근처에 더 배치
+	# (실측 지적 - "맵에 물 항아리가 없는데 어떻게 뿌려?")
+	var jar_ember := Throwable.new()
+	jar_ember.chem_material = ChemTypes.MaterialTag.WATER
+	jar_ember.display_name = "물항아리"
+	jar_ember.global_position = Vector2(1650, 420)
+	add_child(jar_ember)
+
+	var jar_shell := Throwable.new()
+	jar_shell.chem_material = ChemTypes.MaterialTag.WATER
+	jar_shell.display_name = "물항아리"
+	jar_shell.global_position = Vector2(1850, 220)
+	add_child(jar_shell)
+
 
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_player):
