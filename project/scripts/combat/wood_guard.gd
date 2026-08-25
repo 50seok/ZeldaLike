@@ -4,13 +4,17 @@ extends Combatant
 ## §4.1 "우드가드" — 나무 방패를 든 몹. 몸통은 "일반"(비반응) 재질, 방패만 WOOD라
 ## 화학엔진 그대로 적용된다: 불화살이 방패에 닿으면 착화->소각(EquippedWeapon과
 ## 동일 패턴 재사용)돼서 무방비가 된다. 방패가 있는 동안은 전투 피해를 아예 무효화.
+## 방어만 하지 않고 사거리 안에 들어오면 접촉 피해도 준다(IronShell과 동일 패턴).
 
 @export var move_speed: float = 40.0
 @export var detect_radius: float = 140.0
 @export var stop_distance: float = 36.0
+@export var contact_damage: float = 1.0
+@export var contact_cooldown: float = 1.0
 
 var _player: Node2D
 var _shield: EquippedWeapon
+var _contact_cooldown_left := 0.0
 
 
 func _ready() -> void:
@@ -58,10 +62,18 @@ func take_damage(amount: float) -> void:
 	super.take_damage(amount)
 
 
+## IronShell의 접촉 피해 패턴 재사용(방어만 하고 실제 공격이 없던 걸 실측 지적
+## 받아 추가) - 방패 뒤에 숨어만 있지 않고, 사거리(stop_distance)까지 붙으면
+## 쿨다운마다 찌른다.
 func _physics_process(delta: float) -> void:
+	if _contact_cooldown_left > 0.0:
+		_contact_cooldown_left -= delta
 	if not is_instance_valid(_player):
 		_player = get_tree().get_first_node_in_group("player")
 		return
 	var to_player: Vector2 = _player.global_position - global_position
 	if to_player.length() <= detect_radius and to_player.length() > stop_distance:
 		position += to_player.normalized() * move_speed * delta
+	if to_player.length() <= stop_distance and _contact_cooldown_left <= 0.0 and _player.has_method("take_damage"):
+		_player.take_damage(contact_damage)
+		_contact_cooldown_left = contact_cooldown

@@ -55,6 +55,11 @@ func _run_all_tests() -> void:
 
 func _test_wood_guard_shield() -> void:
 	var player := _spawn_player(Vector2(100, 100))
+	# 우드가드도 이제 사거리 안에서 접촉 피해를 준다(실측 지적으로 추가) - 이 테스트는
+	# 방패 화학반응만 검증하는 목적이라, 그 접촉 피해로 플레이어가 중간에 죽어버려
+	# 이후 검증이 조용히 스킵되는 걸 막기 위해 넉넉히 채워둔다.
+	player.max_hearts = 999.0
+	player.hearts = 999.0
 	var guard := WoodGuard.new()
 	guard.global_position = Vector2(100, 130)
 	add_child(guard)
