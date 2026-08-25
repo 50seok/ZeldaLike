@@ -18,3 +18,17 @@ func set_flag(flag_name: String) -> void:
 
 func has_flag(flag_name: String) -> bool:
 	return _flags.get(flag_name, false)
+
+
+## 세이브 시스템(SaveManager)이 그대로 직렬화/복원하는 용도.
+func to_dict() -> Dictionary:
+	return _flags.duplicate()
+
+
+func from_dict(data: Dictionary) -> void:
+	_flags = data.duplicate()
+
+
+## 새 게임 시작 시 이전 실행의 잔여 플래그를 지우는 용도(테스트에서도 사용).
+func reset() -> void:
+	_flags.clear()

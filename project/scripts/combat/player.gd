@@ -227,3 +227,32 @@ func _spawn_equipped_weapon() -> void:
 func _on_weapon_destroyed() -> void:
 	print("무기가 불타 사라졌다!")
 	_equipped_weapon = null
+
+
+## §3.4 세이브 시스템(SaveManager)이 그대로 저장/복원하는 스냅샷. 방패on/off·현재
+## 들고있는 투척물처럼 순간적인 상태는 제외 - 다시 시작해도 자연스럽게 리셋되면 됨.
+func get_save_data() -> Dictionary:
+	return {
+		"position": [global_position.x, global_position.y],
+		"hearts": hearts,
+		"max_hearts": max_hearts,
+		"current_tool": current_tool,
+		"inventory": inventory.to_dict(),
+	}
+
+
+## JSON을 거쳐온 데이터는 정수도 float로 들어오므로(Godot JSON 파서 특성),
+## 인벤토리 수량·도구 enum처럼 int가 필요한 값은 명시적으로 int() 변환한다.
+func apply_save_data(data: Dictionary) -> void:
+	var pos: Array = data.get("position", [])
+	if pos.size() == 2:
+		global_position = Vector2(pos[0], pos[1])
+	max_hearts = data.get("max_hearts", max_hearts)
+	hearts = data.get("hearts", hearts)
+	current_tool = int(data.get("current_tool", current_tool))
+
+	var raw_inventory: Dictionary = data.get("inventory", {})
+	var int_inventory: Dictionary = {}
+	for item_id in raw_inventory:
+		int_inventory[item_id] = int(raw_inventory[item_id])
+	inventory.from_dict(int_inventory)

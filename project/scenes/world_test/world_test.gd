@@ -96,7 +96,14 @@ func _ready() -> void:
 	_zone_ctrl.zones = [village, grassland]
 	add_child(_zone_ctrl)
 	_zone_ctrl.setup(camera, _player)
-	_zone_ctrl.zone_changed.connect(func(zone): _log("%s 진입" % (zone.zone_name if zone else "경계 밖")))
+	# §3.4 세이브 - 던전 방이 아직 없어(우선순위6) "방 클리어 시 자동저장" 대신
+	# 구역 진입을 체크포인트로 쓴다. 죽으면 씬을 리로드하는 기존 기능과 맞물려
+	# "마지막 저장 지점에서 리스폰"(§3.6)이 추가 코드 없이 자연히 성립한다.
+	_zone_ctrl.zone_changed.connect(func(zone):
+		_log("%s 진입" % (zone.zone_name if zone else "경계 밖"))
+		SaveManager.save_game(_player)
+		_log("자동 저장됨")
+	)
 
 	var sp1 := SpawnPoint.new()
 	sp1.entity_type = "vine"
@@ -159,6 +166,12 @@ func _ready() -> void:
 	item_mgr.field_cap = 2
 	add_child(item_mgr)
 	item_mgr.setup(camera)
+
+	# 타이틀 화면이 아직 없어(M4 스코프) "이어하기"를 씬 시작 시 자동 적용으로 대신한다 -
+	# 저장이 있으면 플레이어 상태+스토리 플래그를 여기서 덮어쓴다.
+	if SaveManager.has_save():
+		SaveManager.load_game(_player)
+		_log("저장된 게임을 이어서 불러왔습니다")
 
 	# 우선순위4(NPC 대화 + 스토리 플래그, §3.4) - 기능 NPC 1(촌장, sets_flag)과
 	# 주민 NPC 1(requires_flag로 대사 교체)만 배치해 메커니즘을 확인한다.
