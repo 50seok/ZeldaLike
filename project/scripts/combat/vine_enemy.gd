@@ -40,6 +40,9 @@ func _physics_process(delta: float) -> void:
 
 	if _state == AIState.CHASE and to_player.length() > 1.0:
 		position += to_player.normalized() * move_speed * delta
-		if to_player.length() < 24.0 and _cooldown_left <= 0.0 and _player.has_method("take_damage"):
-			_player.take_damage(contact_damage)
-			_cooldown_left = contact_cooldown
+
+	# 접촉 피해는 "아직 다가가는 중"과 무관하게 확인한다 — 이동 조건 안에 넣으면
+	# 완전히 겹친 순간(거리<=1.0) 피해 판정 자체가 멈추는 버그가 생긴다(실측 확인).
+	if _state == AIState.CHASE and to_player.length() < 24.0 and _cooldown_left <= 0.0 and _player.has_method("take_damage"):
+		_player.take_damage(contact_damage)
+		_cooldown_left = contact_cooldown

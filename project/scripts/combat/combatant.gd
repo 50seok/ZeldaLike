@@ -5,6 +5,7 @@ extends ChemActor
 ## 화학엔진이 그대로 적용되면서(예: 풀 몬스터는 불에 타 죽음) 전투 피해도 받는다.
 
 signal died
+signal damaged(amount: float)
 
 @export var max_hearts: float = 3.0
 var hearts: float
@@ -19,6 +20,7 @@ func take_damage(amount: float) -> void:
 	if hearts <= 0.0:
 		return
 	hearts = max(0.0, hearts - amount)
+	damaged.emit(amount)
 	if hearts <= 0.0:
 		died.emit()
 		queue_free()

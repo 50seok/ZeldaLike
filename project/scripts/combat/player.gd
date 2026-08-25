@@ -6,6 +6,10 @@ extends Combatant
 
 enum ToolType { NORMAL, FIRE }
 
+## 공격/방어 그래픽이 없는 동안(M2) 조작 결과를 확인할 수 있게 하는 디버그용 신호.
+signal did_attack(kind: String)
+signal did_shield_toggle(active: bool)
+
 @export var move_speed: float = 140.0
 @export var sword_material: int = ChemTypes.MaterialTag.WOOD
 @export var sword_damage: float = 1.0
@@ -58,6 +62,7 @@ func take_damage(amount: float) -> void:
 
 
 func perform_melee_attack() -> void:
+	did_attack.emit("칼")
 	for node in get_tree().get_nodes_in_group("combatant_enemies"):
 		if not is_instance_valid(node):
 			continue
@@ -67,6 +72,7 @@ func perform_melee_attack() -> void:
 
 
 func perform_bow_attack() -> void:
+	did_attack.emit("활(%s)" % ("불" if current_tool == ToolType.FIRE else "일반"))
 	var arrow := Arrow.new()
 	arrow.shooter = self
 	arrow.direction = facing if facing != Vector2.ZERO else Vector2.RIGHT
@@ -79,6 +85,7 @@ func perform_bow_attack() -> void:
 
 func toggle_shield() -> void:
 	shield_active = not shield_active
+	did_shield_toggle.emit(shield_active)
 
 
 func cycle_tool() -> void:
