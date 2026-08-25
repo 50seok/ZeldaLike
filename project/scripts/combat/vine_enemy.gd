@@ -22,6 +22,7 @@ func _ready() -> void:
 	max_hearts = 1.0
 	hearts = 1.0
 	burn_duration = 0.4  # "불에 즉시 연소 사망" 체감 — 다른 재질보다 짧게
+	burn_kills_instantly = true  # §4.1 "덩굴이" = 불에 태우면 하트 수 무관 즉시 소멸(의도된 연출)
 	display_name = "덩굴이"
 	add_to_group("combatant_enemies")
 	_setup_drops()

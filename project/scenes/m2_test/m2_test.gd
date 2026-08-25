@@ -62,6 +62,7 @@ func _run_all_tests() -> void:
 	await _test_shield()
 	await _test_pickup_throw()
 	await _test_fire_right_self_safety()
+	await _test_burn_is_damage_over_time()
 
 
 func _test_melee() -> void:
@@ -182,6 +183,32 @@ func _test_fire_right_self_safety() -> void:
 		player.queue_free()
 	if is_instance_valid(vine):
 		vine.queue_free()
+	await get_tree().create_timer(0.1).timeout
+
+
+## 실측 지적("불탔을때 대미지가 너무 강함, 무조건 죽는게 하드함") 재발 방지 -
+## 하트가 있는 일반 Combatant는 불붙어도 즉사가 아니라 하트를 깎는 지속피해여야
+## 한다(§4.1 "덩굴이"만 예외로 즉시 소멸 - burn_kills_instantly).
+func _test_burn_is_damage_over_time() -> void:
+	var target := Combatant.new()
+	target.chem_material = ChemTypes.MaterialTag.CLOTH  # Player와 동일 재질
+	target.max_hearts = 5.0
+	target.global_position = Vector2(1600, 100)
+	add_child(target)
+	await get_tree().physics_frame
+
+	target.set_state(ChemTypes.State.BURNING)
+	await get_tree().create_timer(1.2).timeout  # 기본 tick 간격(1초) 최소 1회 경과
+	_check("H 불붙음 -> 하트 수와 무관한 즉사 아님(생존)", is_instance_valid(target) and target.hearts > 0.0)
+	_check("H 불붙음 -> 틱 데미지가 실제로 들어감", is_instance_valid(target) and target.hearts < 5.0)
+
+	await get_tree().create_timer(2.0).timeout  # burn_duration(2.5초) 경과 - 다 타면 꺼지기만 해야 함
+	_check("H 다 타면 -> 하트 남아있으면 파괴 안 되고 생존", is_instance_valid(target))
+	if is_instance_valid(target):
+		_check("H 다 타면 -> 상태만 꺼짐(NONE)", target.state == ChemTypes.State.NONE)
+
+	if is_instance_valid(target):
+		target.queue_free()
 	await get_tree().create_timer(0.1).timeout
 
 
