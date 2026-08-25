@@ -80,7 +80,15 @@ func _ready() -> void:
 	_log_label.add_theme_color_override("font_color", Color(1, 0.9, 0.4))
 	ui.add_child(_log_label)
 
+	_player.did_attack.connect(func(kind): _log("플레이어 %s 공격!" % kind))
+	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))
+	_player.died.connect(func(): _log("플레이어 사망..."))
 	_player.item_collected.connect(func(item_id, count): _log("아이템 획득 +%d" % count))
+
+	vine1.damaged.connect(func(amount): _log("덩굴이1 피격 -%.1f" % amount))
+	vine1.died.connect(func(): _log("덩굴이1 처치!"))
+	vine2.damaged.connect(func(amount): _log("덩굴이2 피격 -%.1f" % amount))
+	vine2.died.connect(func(): _log("덩굴이2 처치!"))
 
 
 func _process(_delta: float) -> void:

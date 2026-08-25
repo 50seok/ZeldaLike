@@ -27,12 +27,16 @@ var _equipped_weapon: EquippedWeapon
 var _held_item: Throwable
 
 
+@export var starting_arrows: int = 10
+
+
 func _ready() -> void:
 	super._ready()
 	chem_material = ChemTypes.MaterialTag.CLOTH
 	display_name = "플레이어"
 	add_to_group("player")
 	_spawn_equipped_weapon()
+	inventory.add(ItemIds.ARROW, starting_arrows)
 
 
 func _physics_process(delta: float) -> void:
@@ -91,6 +95,10 @@ func perform_melee_attack() -> void:
 
 
 func perform_bow_attack() -> void:
+	if inventory.get_count(ItemIds.ARROW) <= 0:
+		did_attack.emit("활(화살 없음!)")
+		return
+	inventory.remove(ItemIds.ARROW, 1)
 	did_attack.emit("활(%s)" % ("불" if current_tool == ToolType.FIRE else "일반"))
 	var arrow := Arrow.new()
 	arrow.shooter = self
