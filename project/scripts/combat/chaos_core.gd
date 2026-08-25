@@ -18,6 +18,7 @@ enum Phase { ONE, TWO, THREE }
 @export var fireball_damage: float = 0.5
 @export var stun_duration: float = 3.0
 @export var chase_distance: float = 60.0
+@export var detect_radius: float = 650.0  # boss_test.tscn 아레나 전체(대각선 약 636)를 덮되, 던전 방 하나(800x600) 밖까지는 안 나가는 값
 
 var phase: Phase = Phase.ONE
 var hit_count: int = 0
@@ -89,6 +90,12 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var to_player: Vector2 = _player.global_position - global_position
+	# "방"이 실제 벽이 아니라 카메라 존일 뿐이라(§4.2), 감지 범위가 없으면 플레이어가
+	# 몇 개 방 떨어져 있어도 계속 조준+사격해서 화염구가 문/벽을 그냥 관통해 다른
+	# 방까지 날아가 버렸다(실측 확인: 전기 스위치 방에 있는데 보스방 화염구에 맞음).
+	if to_player.length() > detect_radius:
+		return
+
 	var speed_mult := 1.5 if phase == Phase.THREE else 1.0
 	if to_player.length() > chase_distance:
 		position += to_player.normalized() * move_speed * speed_mult * delta

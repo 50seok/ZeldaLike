@@ -43,6 +43,7 @@ func _spawn_chem(mat: int, pos: Vector2, name_hint: String) -> ChemActor:
 func _run_all_tests() -> void:
 	await _test_full_defeat_loop()
 	await _test_fireball_attack()
+	await _test_out_of_range_does_not_attack()
 
 
 ## 콤보 3회(물+전기 스턴 → 공격 1회) 전체 흐름을 하나로 이어서 확인 -
@@ -113,7 +114,10 @@ func _test_fireball_attack() -> void:
 	target.max_hearts = 5.0
 	target.global_position = Vector2(900, 250)
 	add_child(target)
-	add_child(_dummy_player_at(Vector2(900, 250)))
+	# 그룹 "player"에 계속 남아있으면 이후 테스트(G)의 보스가 이 더미를 먼저
+	# 찾아버려서 반드시 정리해야 한다(실측 확인 - G가 원인불명으로 계속 실패).
+	var dummy_player := _dummy_player_at(Vector2(900, 250))
+	add_child(dummy_player)
 	await get_tree().physics_frame
 	await get_tree().create_timer(0.6).timeout
 
@@ -121,16 +125,51 @@ func _test_fireball_attack() -> void:
 
 	boss.queue_free()
 	target.queue_free()
+	dummy_player.queue_free()
+	_clear_fireballs()  # 0.6초 내내 쐈으니 아직 아무것도 못 맞히고 날아다니는 화염구가 남을 수 있음
 	await get_tree().create_timer(0.1).timeout
 
 
 ## ChaosCore가 플레이어 방향을 조준하려면 그룹 "player"에 뭔가 있어야 한다 -
 ## 실제 Player 대신 위치만 맞춘 더미로 충분(화염구 조준 대상 역할만 필요).
+func _clear_fireballs() -> void:
+	for child in get_children():
+		if child is Arrow:
+			child.queue_free()
+
+
 func _dummy_player_at(pos: Vector2) -> Node2D:
 	var dummy := Node2D.new()
 	dummy.global_position = pos
 	dummy.add_to_group("player")
 	return dummy
+
+
+## 실측 지적("던전 다른 방에 있는데 보스 화염구에 맞음") 재발 방지 - "방"이
+## 실제 벽이 아니라 카메라 존일 뿐이라, 감지 범위 없이는 보스가 몇 개 방
+## 떨어진 플레이어도 계속 조준+사격했다. detect_radius 밖이면 추적도 사격도
+## 안 해야 한다.
+func _test_out_of_range_does_not_attack() -> void:
+	var boss := ChaosCore.new()
+	boss.global_position = Vector2(1300, 100)
+	boss.fireball_cooldown = 0.05
+	add_child(boss)
+
+	var far_player := _dummy_player_at(Vector2(1300 + boss.detect_radius + 200, 100))
+	add_child(far_player)
+	await get_tree().physics_frame
+	var pos_before := boss.global_position
+	await get_tree().create_timer(0.3).timeout
+
+	_check("G 감지 범위 밖 -> 추적 안 함", boss.global_position.is_equal_approx(pos_before))
+	# _fire_at()은 항상 get_parent().add_child(fireball)이라, 보스의 부모(=이 테스트
+	# 씬 자신)의 자식 목록에서 화염구(Arrow) 생성 여부를 직접 확인한다.
+	var fireballs := get_children().filter(func(n): return n is Arrow)
+	_check("G 감지 범위 밖 -> 화염구도 안 쏨", fireballs.is_empty())
+
+	boss.queue_free()
+	far_player.queue_free()
+	await get_tree().create_timer(0.1).timeout
 
 
 func _print_summary() -> void:
