@@ -22,6 +22,10 @@ func take_damage(amount: float) -> void:
 	hearts = max(0.0, hearts - amount)
 	damaged.emit(amount)
 	if hearts <= 0.0:
-		died.emit()
 		perform_drops()
-		queue_free()
+		_on_destroyed()
+
+
+func _on_destroyed() -> void:
+	died.emit()
+	super._on_destroyed()

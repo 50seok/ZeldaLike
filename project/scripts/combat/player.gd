@@ -81,6 +81,13 @@ func perform_melee_attack() -> void:
 		var to_target: Vector2 = node.global_position - global_position
 		if to_target.length() <= sword_range and to_target.normalized().dot(facing) > 0.3:
 			node.take_damage(sword_damage)
+	# 수풀 등 환경 오브젝트는 HP가 없어 take_damage가 아니라 즉시 파괴(cut_down)
+	for node in get_tree().get_nodes_in_group("cuttable_props"):
+		if not is_instance_valid(node):
+			continue
+		var to_target: Vector2 = node.global_position - global_position
+		if to_target.length() <= sword_range and to_target.normalized().dot(facing) > 0.3:
+			node.cut_down()
 
 
 func perform_bow_attack() -> void:

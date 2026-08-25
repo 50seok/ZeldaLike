@@ -92,7 +92,13 @@ func _process(delta: float) -> void:
 		if _burn_timer >= burn_duration:
 			burned_out.emit()
 			perform_drops()
-			queue_free()
+			_on_destroyed()
+
+
+## 파괴 지점을 하나로 모은다 — Combatant가 이걸 오버라이드해서 전투사망/소각사망
+## 양쪽 다 died 신호가 나가게 한다(전에는 소각사망 때 died가 안 나가는 구멍이 있었음).
+func _on_destroyed() -> void:
+	queue_free()
 
 
 ## §3.3 드랍 — 파괴 시점의 상태(state)로 기본/BURNING 테이블 중 골라 굴리고,
