@@ -59,6 +59,7 @@ func _ready() -> void:
 	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))
 	_player.died.connect(func(): _log("플레이어 사망..."))
 	_player.item_collected.connect(func(item_id, count): _log("아이템 획득 +%d" % count))
+	_player.did_interact.connect(func(result): _log("Space -> %s" % result))
 
 	var village := WorldZone.new()
 	village.zone_name = "옹달마을"

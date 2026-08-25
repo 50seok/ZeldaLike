@@ -10,6 +10,7 @@ enum ToolType { NORMAL, FIRE, ELECTRIC }
 signal did_attack(kind: String)
 signal did_shield_toggle(active: bool)
 signal item_collected(item_id: String, count: int)
+signal did_interact(result: String)
 
 var inventory := Inventory.new()
 
@@ -137,14 +138,17 @@ func cycle_tool() -> void:
 
 func interact_or_throw() -> void:
 	if _held_item:
+		did_interact.emit("던짐")
 		_held_item.throw(facing)
 		_held_item = null
 		return
 	for area in get_overlapping_areas():
 		if area is Throwable:
+			did_interact.emit("주움")
 			_held_item = area
 			area.pick_up(self)
 			return
+	did_interact.emit("주울 것 없음")
 
 
 ## §3.3 드랍 지급 진입점. ChemActor.perform_drops()가 그룹 "player"를 찾아 이걸 호출한다.
