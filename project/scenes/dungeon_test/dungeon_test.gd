@@ -21,6 +21,11 @@ var _room_d := Rect2(2400, 0, 800, 600)   # 보스 열쇠 방
 var _room_boss := Rect2(3200, 0, 800, 600) # 보스 방(placeholder, M4 스코프)
 var _room_secret := Rect2(1600, 600, 800, 600) # 비밀 방(하트조각)
 
+## world_test.gd와 동일한 이유 - 카메라 존 경계만으로는 플레이어 자신의 이동을
+## 못 막아서 화면 밖으로 무한히 걸어나갈 수 있었다(실측 지적). 전체 방 사각형을
+## 감싸는 경계로 이동을 막는다.
+var _world_bounds: Rect2
+
 
 func _draw() -> void:
 	draw_rect(_room_a, Color(0.2, 0.18, 0.1))
@@ -96,6 +101,7 @@ func _ready() -> void:
 	_zone_ctrl.zones = zones
 	add_child(_zone_ctrl)
 	_zone_ctrl.setup(camera, _player)
+	_world_bounds = _room_a.merge(_room_b).merge(_room_c).merge(_room_d).merge(_room_boss).merge(_room_secret)
 	_zone_ctrl.zone_changed.connect(func(zone):
 		_log("%s 진입" % (zone.zone_name if zone else "경계 밖"))
 		SaveManager.save_game(_player)
@@ -253,6 +259,9 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_player):
 		return
+	_player.global_position.x = clamp(_player.global_position.x, _world_bounds.position.x, _world_bounds.end.x)
+	_player.global_position.y = clamp(_player.global_position.y, _world_bounds.position.y, _world_bounds.end.y)
+
 	var zone_name := _zone_ctrl.current_zone.zone_name if _zone_ctrl.current_zone else "?"
 	_status_label.text = "현재 구역: %s | 하트: %.1f/%.1f" % [zone_name, _player.hearts, _player.max_hearts]
 

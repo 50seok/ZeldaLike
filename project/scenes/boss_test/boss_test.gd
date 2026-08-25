@@ -109,6 +109,9 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_player):
 		return
+	_player.global_position.x = clamp(_player.global_position.x, _arena_bounds.position.x, _arena_bounds.end.x)
+	_player.global_position.y = clamp(_player.global_position.y, _arena_bounds.position.y, _arena_bounds.end.y)
+
 	var boss_status := "격파됨" if not is_instance_valid(_boss) else "진행 %d/3 (페이즈 %d)" % [_boss.hit_count, _boss.phase + 1]
 	_status_label.text = "하트: %.1f/%.1f | 보스: %s" % [_player.hearts, _player.max_hearts, boss_status]
 

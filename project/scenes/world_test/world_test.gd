@@ -22,6 +22,14 @@ var _field_bounds := Rect2(800, 0, 2400, 1400)
 var _dungeon_entrance_x := 3100.0
 var _entered_dungeon := false
 
+## 실측 지적: "초원맵등 던전처럼 제한이 있으면 좋겠음" - 지금까지 카메라만
+## 존 경계에 맞춰 멈추고 플레이어 자신은 그 너머로 계속 걸어나갈 수 있었다
+## (화면 밖 어둠 속으로 무한히 걸어가는 게 가능했음). 마을+초원을 감싸는
+## 사각형으로 이동 자체를 막는다. 마을(0,0,800,600)과 초원(800,0,2400,1400)은
+## 높이가 달라 정확히 합친 모양이 아니라 사각 경계 하나로 근사한다(빈 모서리가
+## 살짝 남지만, "화면 밖으로 무한 이탈" 문제 해결이 목적이라 이걸로 충분).
+var _world_bounds: Rect2
+
 
 func _draw() -> void:
 	draw_rect(_village_bounds, Color(0.15, 0.15, 0.28))
@@ -110,6 +118,7 @@ func _ready() -> void:
 	_zone_ctrl.zones = [village, grassland]
 	add_child(_zone_ctrl)
 	_zone_ctrl.setup(camera, _player)
+	_world_bounds = _village_bounds.merge(_field_bounds)
 	# §3.4 세이브 - 던전 방이 아직 없어(우선순위6) "방 클리어 시 자동저장" 대신
 	# 구역 진입을 체크포인트로 쓴다. 죽으면 씬을 리로드하는 기존 기능과 맞물려
 	# "마지막 저장 지점에서 리스폰"(§3.6)이 추가 코드 없이 자연히 성립한다.
@@ -220,6 +229,9 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_player):
 		return
+	_player.global_position.x = clamp(_player.global_position.x, _world_bounds.position.x, _world_bounds.end.x)
+	_player.global_position.y = clamp(_player.global_position.y, _world_bounds.position.y, _world_bounds.end.y)
+
 	var zone_name := _zone_ctrl.current_zone.zone_name if _zone_ctrl.current_zone else "?"
 	_status_label.text = "현재 구역: %s | 하트: %.1f/%.1f | 방패: %s" % [
 		zone_name, _player.hearts, _player.max_hearts,
