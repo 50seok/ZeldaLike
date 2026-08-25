@@ -59,6 +59,12 @@ func _run_all_tests() -> void:
 	await get_tree().create_timer(0.2).timeout
 	_check("③ 물+불 접촉 -> 소화 후 WET", burning_wood.state == ChemTypes.State.WET)
 
+	# 3-1. 물 + 마른 대상(불 안 붙음) -> 그래도 WET (물+전기 콤보의 전제 조건)
+	var dry_metal := _spawn(ChemTypes.MaterialTag.METAL, Vector2(400, 100), "마른금속")
+	var water2 := _spawn(ChemTypes.MaterialTag.WATER, Vector2(430, 100), "물2")
+	await get_tree().create_timer(0.2).timeout
+	_check("③-1 물+마른 대상 접촉 -> WET 부여(불 안 붙어도)", dry_metal.state == ChemTypes.State.WET)
+
 	# 4. 전기 + 금속 -> 전도
 	var charged_metal := _spawn(ChemTypes.MaterialTag.METAL, Vector2(500, 100), "전도체")
 	var metal2 := _spawn(ChemTypes.MaterialTag.METAL, Vector2(530, 100), "금속2")

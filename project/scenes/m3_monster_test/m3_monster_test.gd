@@ -114,7 +114,14 @@ func _test_iron_shell_stun() -> void:
 	await get_tree().create_timer(0.1).timeout
 	_check("C 평소 근접 공격 -> 무효(튕김)", shell.hearts == shell.max_hearts)
 
-	shell.set_state(ChemTypes.State.WET)
+	# 실측 버그 재발 방지: shell.set_state(WET)로 직접 강제하면 반응표 경로를 안 타서
+	# "마른 대상에 물을 던져도 반응표에 매치되는 규칙이 없어 WET이 안 됨" 버그를
+	# 못 잡았다(실측 확인: "물+전기화살 했는데 안 죽음"). 실제 물 오브젝트 접촉으로 검증.
+	var water := _spawn_chem(ChemTypes.MaterialTag.WATER, shell.global_position + Vector2(5, 0), "물")
+	await get_tree().create_timer(0.1).timeout
+	_check("C 물 접촉(실제 반응표 경로) -> WET 부여", shell.state == ChemTypes.State.WET)
+	water.queue_free()
+
 	var charged := _spawn_chem(ChemTypes.MaterialTag.METAL, shell.global_position, "전도체")
 	charged.set_state(ChemTypes.State.CHARGED)
 	await get_tree().create_timer(0.2).timeout

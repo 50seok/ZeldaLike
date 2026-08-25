@@ -29,13 +29,17 @@ func _initialize() -> void:
 	r_wind.description = "불붙은 풀 -> 인접 풀 연쇄 전파"
 	rules.append(r_wind)
 
-	# 3. 물 + 불붙음 -> 소화 + 젖음
+	# 3. 물 접촉 -> 대상 WET (상태 무관 - 마른 대상이든 불붙은 대상이든).
+	# 예전엔 state_b=BURNING 조건이 있어서 "불 끄기" 전용으로만 동작했다 -> 마른 금속
+	# (아이언셸 등)에 물을 던져도 반응표에 매치되는 규칙이 아예 없어 WET이 안 됐고,
+	# 그래서 물+전기 콤보 자체가 절대 성립할 수 없었다(실측 확인: "물+전기화살 했는데
+	# 안 죽음" - 감전 대신 항상 전도만 됨). 상태 조건을 없애 조건 없이 WET을 부여하면
+	# 불붙은 대상은 자동으로 소화까지 겸한다(WET이 BURNING을 대체하므로).
 	var r_water := ReactionRule.new()
 	r_water.material_a = ChemTypes.MaterialTag.WATER
-	r_water.state_b = ChemTypes.State.BURNING
 	r_water.affects_b = true
 	r_water.result_state_b = ChemTypes.State.WET
-	r_water.description = "물 접촉 -> 불붙은 대상 소화, WET 부여"
+	r_water.description = "물 접촉 -> 대상 WET(불붙은 상태였다면 소화 겸용)"
 	rules.append(r_water)
 
 	# 5. 전기 + 젖음 -> 감전 (4번보다 먼저 검사해야 한다 — try_apply는 첫 매치에서

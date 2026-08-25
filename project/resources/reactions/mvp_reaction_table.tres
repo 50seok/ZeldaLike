@@ -72,7 +72,7 @@ script = ExtResource("1_wnq71")
 material_a = 5
 state_a = 0
 material_b = 0
-state_b = 1
+state_b = 0
 affects_a = false
 result_state_a = 0
 convert_material_a = 0
@@ -81,7 +81,7 @@ affects_b = true
 result_state_b = 2
 convert_material_b = 0
 shock_b = false
-description = "물 접촉 -> 불붙은 대상 소화, WET 부여"
+description = "물 접촉 -> 대상 WET(불붙은 상태였다면 소화 겸용)"
 
 [sub_resource type="Resource" id="Resource_kv7yr"]
 script = ExtResource("1_wnq71")
