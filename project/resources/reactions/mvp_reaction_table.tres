@@ -87,22 +87,6 @@ description = "물 접촉 -> 불붙은 대상 소화, WET 부여"
 script = ExtResource("1_wnq71")
 material_a = 0
 state_a = 3
-material_b = 2
-state_b = 0
-affects_a = false
-result_state_a = 0
-convert_material_a = 0
-shock_a = false
-affects_b = true
-result_state_b = 3
-convert_material_b = 0
-shock_b = false
-description = "전기 접촉 -> 금속으로 전도"
-
-[sub_resource type="Resource" id="Resource_av6x4"]
-script = ExtResource("1_wnq71")
-material_a = 0
-state_a = 3
 material_b = 0
 state_b = 2
 affects_a = false
@@ -114,6 +98,22 @@ result_state_b = 0
 convert_material_b = 0
 shock_b = true
 description = "전기 접촉 -> 젖은 대상 감전 (피해는 M2 전투에서 연동)"
+
+[sub_resource type="Resource" id="Resource_av6x4"]
+script = ExtResource("1_wnq71")
+material_a = 0
+state_a = 3
+material_b = 2
+state_b = 0
+affects_a = false
+result_state_a = 0
+convert_material_a = 0
+shock_a = false
+affects_b = true
+result_state_b = 3
+convert_material_b = 0
+shock_b = false
+description = "전기 접촉 -> 금속으로 전도"
 
 [sub_resource type="Resource" id="Resource_68bch"]
 script = ExtResource("1_wnq71")

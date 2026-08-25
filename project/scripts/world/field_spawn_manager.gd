@@ -83,6 +83,12 @@ func _create_monster(monster_type: String) -> Combatant:
 	match monster_type:
 		"vine":
 			return VineEnemy.new()
+		"wood_guard":
+			return WoodGuard.new()
+		"ember":
+			return Ember.new()
+		"iron_shell":
+			return IronShell.new()
 		_:
 			push_warning("FieldSpawnManager: 알 수 없는 몬스터 타입 '%s'" % monster_type)
 			return null

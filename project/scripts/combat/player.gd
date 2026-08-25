@@ -4,7 +4,7 @@ extends Combatant
 ## §3.1 플레이어 액션. 벽·room 충돌은 아직 없어서(M3에서 던전 생기면 추가) Area2D 위치 이동으로 충분.
 ## 조작(수동 플레이 시): 방향키=이동, Z=칼, X=활, C=방패 토글, Space=줍기/던지기, Tab=화살 속성 전환.
 
-enum ToolType { NORMAL, FIRE }
+enum ToolType { NORMAL, FIRE, ELECTRIC }
 
 ## 공격/방어 그래픽이 없는 동안(M2) 조작 결과를 확인할 수 있게 하는 디버그용 신호.
 signal did_attack(kind: String)
@@ -106,7 +106,8 @@ func perform_bow_attack() -> void:
 		did_attack.emit("활(화살 없음!)")
 		return
 	inventory.remove(ItemIds.ARROW, 1)
-	did_attack.emit("활(%s)" % ("불" if current_tool == ToolType.FIRE else "일반"))
+	var tool_names := {ToolType.NORMAL: "일반", ToolType.FIRE: "불", ToolType.ELECTRIC: "전기"}
+	did_attack.emit("활(%s)" % tool_names[current_tool])
 	var arrow := Arrow.new()
 	arrow.shooter = self
 	arrow.direction = facing if facing != Vector2.ZERO else Vector2.RIGHT
@@ -115,6 +116,8 @@ func perform_bow_attack() -> void:
 	get_parent().add_child(arrow)
 	if current_tool == ToolType.FIRE:
 		arrow.set_state(ChemTypes.State.BURNING)
+	elif current_tool == ToolType.ELECTRIC:
+		arrow.set_state(ChemTypes.State.CHARGED)
 
 
 func toggle_shield() -> void:
@@ -123,7 +126,13 @@ func toggle_shield() -> void:
 
 
 func cycle_tool() -> void:
-	current_tool = ToolType.FIRE if current_tool == ToolType.NORMAL else ToolType.NORMAL
+	match current_tool:
+		ToolType.NORMAL:
+			current_tool = ToolType.FIRE
+		ToolType.FIRE:
+			current_tool = ToolType.ELECTRIC
+		ToolType.ELECTRIC:
+			current_tool = ToolType.NORMAL
 
 
 func interact_or_throw() -> void:

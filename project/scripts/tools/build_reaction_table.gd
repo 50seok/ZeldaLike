@@ -38,16 +38,10 @@ func _initialize() -> void:
 	r_water.description = "물 접촉 -> 불붙은 대상 소화, WET 부여"
 	rules.append(r_water)
 
-	# 4. 전기 + 금속 -> 전도
-	var r_conduct := ReactionRule.new()
-	r_conduct.state_a = ChemTypes.State.CHARGED
-	r_conduct.material_b = ChemTypes.MaterialTag.METAL
-	r_conduct.affects_b = true
-	r_conduct.result_state_b = ChemTypes.State.CHARGED
-	r_conduct.description = "전기 접촉 -> 금속으로 전도"
-	rules.append(r_conduct)
-
-	# 5. 전기 + 젖음 -> 감전
+	# 5. 전기 + 젖음 -> 감전 (4번보다 먼저 검사해야 한다 — try_apply는 첫 매치에서
+	# 멈추는데, "금속이면 무조건 전도"가 "젖은 금속" 케이스까지 삼켜버려서 감전이
+	# 아예 발동을 못 했다(실측 확인: 아이언셸이 물에 젖어도 전기 화살에 전도만
+	# 되고 감전 스턴이 안 걸림). 젖음처럼 더 구체적인 조건을 먼저 둔다.
 	var r_shock := ReactionRule.new()
 	r_shock.state_a = ChemTypes.State.CHARGED
 	r_shock.state_b = ChemTypes.State.WET
@@ -55,6 +49,15 @@ func _initialize() -> void:
 	r_shock.shock_b = true
 	r_shock.description = "전기 접촉 -> 젖은 대상 감전 (피해는 M2 전투에서 연동)"
 	rules.append(r_shock)
+
+	# 4. 전기 + 금속(안 젖은 상태) -> 전도
+	var r_conduct := ReactionRule.new()
+	r_conduct.state_a = ChemTypes.State.CHARGED
+	r_conduct.material_b = ChemTypes.MaterialTag.METAL
+	r_conduct.affects_b = true
+	r_conduct.result_state_b = ChemTypes.State.CHARGED
+	r_conduct.description = "전기 접촉 -> 금속으로 전도"
+	rules.append(r_conduct)
 
 	# 6. 불 + 얼음 -> 해빙
 	var r_thaw := ReactionRule.new()
