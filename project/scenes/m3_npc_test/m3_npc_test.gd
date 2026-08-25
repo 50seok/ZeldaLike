@@ -34,6 +34,7 @@ func _run_all_tests() -> void:
 	await _test_dialogue_typewriter()
 	await _test_functional_npc_sets_flag()
 	await _test_flavor_npc_line_swap()
+	await _test_player_integration_multi_line()
 
 
 func _test_dialogue_typewriter() -> void:
@@ -110,6 +111,52 @@ func _test_flavor_npc_line_swap() -> void:
 
 	box.queue_free()
 	villager.queue_free()
+	await get_tree().create_timer(0.1).timeout
+
+
+## 위 테스트들은 NPC.talk()/DialogueBox를 직접 호출해서 검증했는데, 실제 플레이는
+## Player._unhandled_input()의 라우팅(대화 중엔 Space=advance, 아니면 interact_or_throw)을
+## 거친다 - 사용자가 "여러 줄짜리 NPC가 첫 줄만 반복된다"고 보고해서, 그 실제 경로를
+## 그대로 재현해 확인한다.
+func _test_player_integration_multi_line() -> void:
+	var box := DialogueBox.new()
+	box.chars_per_sec = 9999.0
+	add_child(box)
+	box.add_to_group("dialogue_box")
+
+	var player := Player.new()
+	player.global_position = Vector2(900, 100)
+	add_child(player)
+
+	var chief := NPC.new()
+	chief.npc_name = "촌장"
+	chief.lines = ["첫 줄", "둘째 줄", "셋째 줄"]
+	chief.sets_flag = "d_test_met_chief"
+	chief.global_position = Vector2(900, 100)
+	add_child(chief)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+
+	player.interact_or_throw()  # 1번째 Space - 대화 시작
+	await get_tree().create_timer(0.05).timeout
+	_check("D 1번째 Space -> 대화 시작+첫 줄", box.get_visible_text() == "첫 줄")
+
+	_check("D 대화 중 -> _is_dialogue_open() true", player._is_dialogue_open())
+	player._dialogue_box.advance()  # 2번째 Space(대화 중이므로 실제로는 _unhandled_input이 advance를 호출)
+	await get_tree().create_timer(0.05).timeout
+	_check("D 2번째 Space -> 둘째 줄로 진행", box.get_visible_text() == "둘째 줄")
+
+	player._dialogue_box.advance()  # 3번째 Space
+	await get_tree().create_timer(0.05).timeout
+	_check("D 3번째 Space -> 셋째 줄로 진행", box.get_visible_text() == "셋째 줄")
+
+	player._dialogue_box.advance()  # 4번째 Space - 마지막 줄 이후라 닫힘+플래그
+	await get_tree().create_timer(0.05).timeout
+	_check("D 4번째 Space -> 대화 종료+플래그 세워짐", not box.is_open() and StoryFlags.has_flag("d_test_met_chief"))
+
+	player.queue_free()
+	chief.queue_free()
+	box.queue_free()
 	await get_tree().create_timer(0.1).timeout
 
 
