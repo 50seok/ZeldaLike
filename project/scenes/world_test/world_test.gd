@@ -10,8 +10,11 @@ var _log_label: Label
 var _log_lines: Array[String] = []
 
 ## 아직 그래픽이 없어서 존 경계를 색 배경 + 경계선으로 눈에 보이게 표시한다.
+## 필드가 카메라 가시범위보다 충분히 커야 "화면 밖" 판정이 실제로 성립한다
+## (900x700이었을 때는 존 안에서 카메라가 필드 전체를 거의 항상 보여줘서
+## 리젠이 절대 안 되는 문제가 있었음 - 실측 확인).
 var _village_bounds := Rect2(0, 0, 800, 600)
-var _field_bounds := Rect2(800, 0, 900, 700)
+var _field_bounds := Rect2(800, 0, 2400, 1400)
 
 
 func _draw() -> void:
@@ -48,10 +51,12 @@ func _ready() -> void:
 
 	var sp1 := SpawnPoint.new()
 	sp1.monster_type = "vine"
+	sp1.respawn_sec = 8.0  # 실제 기본값(45초)은 너무 길어 수동 테스트용으로 단축
 	sp1.position = Vector2(1000, 250)
 	add_child(sp1)
 	var sp2 := SpawnPoint.new()
 	sp2.monster_type = "vine"
+	sp2.respawn_sec = 8.0
 	sp2.position = Vector2(1150, 400)
 	add_child(sp2)
 
@@ -75,7 +80,7 @@ func _ready() -> void:
 	var help := Label.new()
 	help.position = Vector2(20, 20)
 	help.add_theme_font_size_override("font_size", 16)
-	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Tab 화살속성 전환\n마을(안전)에서 오른쪽으로 걸어가면 초원(덩굴이+수풀). 덩굴이는 죽여도 화면 밖에서 시간 지나면 다시 나타남"
+	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Tab 화살속성 전환\n마을(안전)에서 오른쪽으로 걸어가면 초원(덩굴이+수풀). 덩굴이를 죽인 뒤 필드 안쪽으로 더 들어가(화면 밖으로) 8초 넘게 기다렸다 돌아오면 리젠됨"
 	ui.add_child(help)
 
 	_status_label = Label.new()
