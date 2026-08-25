@@ -9,6 +9,16 @@ var _status_label: Label
 var _log_label: Label
 var _log_lines: Array[String] = []
 
+## 아직 그래픽이 없어서 존 경계를 색 배경 + 경계선으로 눈에 보이게 표시한다.
+var _village_bounds := Rect2(0, 0, 800, 600)
+var _field_bounds := Rect2(800, 0, 900, 700)
+
+
+func _draw() -> void:
+	draw_rect(_village_bounds, Color(0.15, 0.15, 0.28))
+	draw_rect(_field_bounds, Color(0.12, 0.26, 0.14))
+	draw_rect(Rect2(_village_bounds.end.x - 5, 0, 10, _village_bounds.size.y), Color(1.0, 1.0, 0.3))
+
 
 func _ready() -> void:
 	_player = Player.new()
@@ -22,12 +32,12 @@ func _ready() -> void:
 
 	var village := WorldZone.new()
 	village.zone_name = "옹달마을"
-	village.bounds = Rect2(0, 0, 800, 600)
+	village.bounds = _village_bounds
 	village.is_safe = true
 
 	var grassland := WorldZone.new()
 	grassland.zone_name = "초원"
-	grassland.bounds = Rect2(800, 0, 900, 700)
+	grassland.bounds = _field_bounds
 	grassland.is_safe = false
 
 	_zone_ctrl = ZoneCameraController.new()
