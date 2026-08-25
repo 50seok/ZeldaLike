@@ -48,4 +48,5 @@ func start_new_game() -> void:
 
 
 func continue_game() -> void:
-	get_tree().change_scene_to_file(main_game_scene_path)
+	var saved_scene := SaveManager.get_saved_scene_path()
+	get_tree().change_scene_to_file(saved_scene if saved_scene != "" else main_game_scene_path)

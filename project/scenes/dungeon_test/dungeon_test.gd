@@ -47,7 +47,7 @@ func _ready() -> void:
 	var help := Label.new()
 	help.position = Vector2(20, 20)
 	help.add_theme_font_size_override("font_size", 16)
-	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Space 줍기/던지기/상자 열기/대화(대화 중엔 다음 줄) · V 내려놓기 · Tab 화살속성 전환\n입구(수풀 태우기, 석판1)->작은열쇠방(석판2)->전기스위치방(얼음 녹이면 남쪽 비밀방=정령)->보스열쇠방(석판3)->보스방(placeholder)"
+	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Space 줍기/던지기/상자 열기/대화(대화 중엔 다음 줄) · V 내려놓기 · Tab 화살속성 전환\n입구(수풀 태우기, 석판1)->작은열쇠방(석판2)->전기스위치방(얼음 녹이면 남쪽 비밀방=정령)->보스열쇠방(석판3)->보스방(혼돈의 코어, 물+전기 콤보로 스턴시킨 뒤 칼로 3회)"
 	ui.add_child(help)
 
 	_status_label = Label.new()
@@ -96,7 +96,16 @@ func _ready() -> void:
 	_zone_ctrl.zones = zones
 	add_child(_zone_ctrl)
 	_zone_ctrl.setup(camera, _player)
-	_zone_ctrl.zone_changed.connect(func(zone): _log("%s 진입" % (zone.zone_name if zone else "경계 밖")))
+	_zone_ctrl.zone_changed.connect(func(zone):
+		_log("%s 진입" % (zone.zone_name if zone else "경계 밖"))
+		SaveManager.save_game(_player)
+	)
+
+	# world_test.tscn과 동일한 이어하기 방식 - 저장이 있으면(월드에서 넘어왔거나
+	# 타이틀 "이어하기"로 던전 도중부터 시작하는 경우) 여기서 상태를 덮어쓴다.
+	if SaveManager.has_save():
+		SaveManager.load_game(_player)
+		_log("저장된 게임을 이어서 불러왔습니다")
 
 	# 퍼즐 ① - 입구를 막은 마른 수풀. 베거나 태우면 사라져 다음 방으로 갈 수 있다.
 	var blockage := GrassPatch.new()
@@ -165,11 +174,36 @@ func _ready() -> void:
 	boss_door.global_position = Vector2(3195, 300)
 	add_child(boss_door)
 
-	var boss_placeholder := Label.new()
-	boss_placeholder.position = Vector2(3300, 250)
-	boss_placeholder.add_theme_font_size_override("font_size", 20)
-	boss_placeholder.text = "(보스 \"혼돈의 코어\"는 우선순위 M4에서 구현 예정)"
-	add_child(boss_placeholder)
+	# 보스 방 - boss_test.tscn에서 검증한 그대로: 보스 + 물웅덩이 2곳(항아리 리필,
+	# §4.1 "보스 방 고정 배치"). 격파되면 엔딩으로 넘어간다.
+	var boss := ChaosCore.new()
+	boss.global_position = Vector2(3600, 300)
+	add_child(boss)
+	boss.phase_changed.connect(func(new_phase):
+		var phase_names := {ChaosCore.Phase.TWO: "2(얼음+덩굴이 소환)", ChaosCore.Phase.THREE: "3(속도+탄막 증가)"}
+		_log("혼돈의 코어 -> 페이즈 %s 돌입!" % phase_names.get(new_phase, str(new_phase)))
+	)
+	boss.defeated.connect(func():
+		_log("혼돈의 코어 격파! 승리!")
+		get_tree().change_scene_to_file("res://scenes/ending/ending.tscn")
+	)
+
+	var boss_jar_sp1 := SpawnPoint.new()
+	boss_jar_sp1.entity_type = "water_jar"
+	boss_jar_sp1.respawn_sec = 5.0
+	boss_jar_sp1.position = Vector2(3300, 500)
+	add_child(boss_jar_sp1)
+	var boss_jar_sp2 := SpawnPoint.new()
+	boss_jar_sp2.entity_type = "water_jar"
+	boss_jar_sp2.respawn_sec = 5.0
+	boss_jar_sp2.position = Vector2(3850, 500)
+	add_child(boss_jar_sp2)
+
+	var boss_item_mgr := FieldSpawnManager.new()
+	boss_item_mgr.spawn_points = [boss_jar_sp1, boss_jar_sp2]
+	boss_item_mgr.field_cap = 2
+	add_child(boss_item_mgr)
+	boss_item_mgr.setup(camera)
 
 	# 우선순위4 - 석판(§3.5 유적 내력) + 정령 구출. 기존 NPC/대화 시스템을 그대로
 	# 재사용한다(석판=대사만 있는 NPC, 정령=sets_flag가 있는 NPC) - 새 시스템 없음.

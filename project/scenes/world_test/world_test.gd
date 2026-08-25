@@ -16,11 +16,18 @@ var _log_lines: Array[String] = []
 var _village_bounds := Rect2(0, 0, 800, 600)
 var _field_bounds := Rect2(800, 0, 2400, 1400)
 
+## §4.2 "필드를 지나 유적(던전)으로" - 초원 동쪽 끝에 던전 입구를 둔다. 씬 전환
+## 방식(월드↔던전은 좌표공간이 완전히 달라 하나로 합치기보다 우선순위4까지의
+## title/opening/ending과 동일한 change_scene_to_file 패턴을 그대로 재사용).
+var _dungeon_entrance_x := 3100.0
+var _entered_dungeon := false
+
 
 func _draw() -> void:
 	draw_rect(_village_bounds, Color(0.15, 0.15, 0.28))
 	draw_rect(_field_bounds, Color(0.12, 0.26, 0.14))
 	draw_rect(Rect2(_village_bounds.end.x - 5, 0, 10, _village_bounds.size.y), Color(1.0, 1.0, 0.3))
+	draw_rect(Rect2(_dungeon_entrance_x, 0, 100, _field_bounds.size.y), Color(0.3, 0.25, 0.15))
 
 
 func _ready() -> void:
@@ -203,6 +210,12 @@ func _ready() -> void:
 	villager.global_position = Vector2(350, 150)
 	add_child(villager)
 
+	var entrance_label := Label.new()
+	entrance_label.position = Vector2(_dungeon_entrance_x, -30)
+	entrance_label.add_theme_font_size_override("font_size", 16)
+	entrance_label.text = "유적 입구 →"
+	add_child(entrance_label)
+
 
 func _process(_delta: float) -> void:
 	if not is_instance_valid(_player):
@@ -212,6 +225,11 @@ func _process(_delta: float) -> void:
 		zone_name, _player.hearts, _player.max_hearts,
 		("ON" if _player.shield_active else "OFF"),
 	]
+
+	if not _entered_dungeon and _player.global_position.x >= _dungeon_entrance_x:
+		_entered_dungeon = true
+		SaveManager.save_game(_player)  # 유적으로 넘어가는 순간 상태를 확정 저장
+		get_tree().change_scene_to_file("res://scenes/dungeon_test/dungeon_test.tscn")
 
 
 func _on_monster_spawned(monster: Node) -> void:
