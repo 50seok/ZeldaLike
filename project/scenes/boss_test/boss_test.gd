@@ -17,6 +17,11 @@ var _log_lines: Array[String] = []
 func _ready() -> void:
 	_player = Player.new()
 	_player.global_position = Vector2(400, 500)
+	# 보스전을 실제로 "깰 수 있게" 장비를 넉넉히 갖추고 시작한다 - 콤보를
+	# 3번 반복해야 하는데(재감전 필요) 기본 하트 3개/화살 10개로는 화염구+접촉
+	# 피해 몇 번에 빠듯하다(실측 요청: "깰 수 있을만한 장비 준비해놓고 진행").
+	_player.max_hearts = 6.0
+	_player.starting_arrows = 30
 	add_child(_player)
 
 	var camera := Camera2D.new()
@@ -71,12 +76,12 @@ func _ready() -> void:
 	# §4.1 "물 웅덩이 2곳(항아리 리필)" - 콤보 자원이 고갈돼 막히지 않게.
 	var jar_sp1 := SpawnPoint.new()
 	jar_sp1.entity_type = "water_jar"
-	jar_sp1.respawn_sec = 8.0
+	jar_sp1.respawn_sec = 5.0  # 콤보를 3번(페이즈마다 재감전) 반복해야 해서 넉넉히 짧게
 	jar_sp1.position = Vector2(150, 500)
 	add_child(jar_sp1)
 	var jar_sp2 := SpawnPoint.new()
 	jar_sp2.entity_type = "water_jar"
-	jar_sp2.respawn_sec = 8.0
+	jar_sp2.respawn_sec = 5.0
 	jar_sp2.position = Vector2(650, 500)
 	add_child(jar_sp2)
 
