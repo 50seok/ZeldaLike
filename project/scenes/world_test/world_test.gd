@@ -103,6 +103,9 @@ func _ready() -> void:
 	]
 	ui.add_child(quest_label)
 
+	var item_banner := ItemGetBanner.new()
+	ui.add_child(item_banner)
+
 	_player.did_attack.connect(func(kind): _log("플레이어 %s 공격!" % kind))
 	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))
 	# 테스트 씬 전용 편의 기능 - 죽으면 플레이어가 그냥 사라지고 끝이라 재시작할 방법이
@@ -113,7 +116,11 @@ func _ready() -> void:
 		await get_tree().create_timer(2.0).timeout
 		get_tree().reload_current_scene()
 	)
-	_player.item_collected.connect(func(item_id, count): _log("아이템 획득 +%d" % count))
+	_player.item_collected.connect(func(item_id, count):
+		_log("아이템 획득 +%d" % count)
+		if ItemIds.is_notable(item_id):
+			item_banner.show_item(ItemIds.display_name(item_id))
+	)
 	_player.did_interact.connect(func(result): _log("Space -> %s" % result))
 
 	var village := WorldZone.new()

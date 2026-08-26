@@ -219,7 +219,7 @@ func collect_item(item_id: String, count: int) -> void:
 				hearts = max_hearts
 		_:
 			inventory.add(item_id, count)
-	Audio.play_sfx("pickup")
+	Audio.play_sfx("jingle" if ItemIds.is_notable(item_id) else "pickup")
 	item_collected.emit(item_id, count)
 
 

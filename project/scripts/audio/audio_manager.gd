@@ -15,6 +15,7 @@ const SFX := {
 	"hit": preload("res://assets/audio/sfx/impactGeneric_light_000.ogg"),
 	"pickup": preload("res://assets/audio/sfx/handleCoins.ogg"),
 	"door": preload("res://assets/audio/sfx/doorOpen_1.ogg"),
+	"jingle": preload("res://assets/audio/sfx/item_get_jingle.ogg"),
 }
 
 var _bgm_player: AudioStreamPlayer

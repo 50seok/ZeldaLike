@@ -56,11 +56,21 @@ func take_damage(amount: float) -> void:
 		return
 	hearts = max(0.0, hearts - amount)
 	Audio.play_sfx("hit")
+	_flash_hit()
 	damaged.emit(amount)
 	_update_label()
 	if hearts <= 0.0:
 		perform_drops()
 		_on_destroyed()
+
+
+## §3.2 "이펙트" - _draw()로 색칠하는 사각형이라 스프라이트가 없어도
+## modulate(자체가 곱셈 틴트라 흰색보다 큰 값을 주면 과다노출처럼 밝아짐)만으로
+## "맞았다"는 즉각적 피드백을 낼 수 있다 - 새 그래픽 리소스 불필요.
+func _flash_hit() -> void:
+	modulate = Color(2.2, 2.2, 2.2)
+	var tween := create_tween()
+	tween.tween_property(self, "modulate", Color.WHITE, 0.15)
 
 
 func _on_destroyed() -> void:

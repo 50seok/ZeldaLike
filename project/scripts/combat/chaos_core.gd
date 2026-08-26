@@ -55,6 +55,8 @@ func is_stunned() -> bool:
 func take_damage(_amount: float) -> void:
 	if not is_stunned():
 		return
+	Audio.play_sfx("hit")
+	_flash_hit()
 	_stun_timer = 0.0
 	hit_count += 1
 	if hit_count >= 3:

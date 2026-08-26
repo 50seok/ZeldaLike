@@ -83,6 +83,9 @@ func _ready() -> void:
 	ui.add_child(dialogue_box)
 	dialogue_box.add_to_group("dialogue_box")
 
+	var item_banner := ItemGetBanner.new()
+	ui.add_child(item_banner)
+
 	_player.did_attack.connect(func(kind): _log("플레이어 %s 공격!" % kind))
 	_player.damaged.connect(func(amount): _log("플레이어 피격 -%.1f" % amount))
 	_player.died.connect(func():
@@ -90,7 +93,11 @@ func _ready() -> void:
 		await get_tree().create_timer(2.0).timeout
 		get_tree().reload_current_scene()
 	)
-	_player.item_collected.connect(func(item_id, count): _log("%s 획득! (+%d)" % [_item_display_name(item_id), count]))
+	_player.item_collected.connect(func(item_id, count):
+		_log("%s 획득! (+%d)" % [_item_display_name(item_id), count])
+		if ItemIds.is_notable(item_id):
+			item_banner.show_item(ItemIds.display_name(item_id))
+	)
 	_player.did_interact.connect(func(result): _log("Space -> %s" % result))
 
 	var zones: Array[WorldZone] = []

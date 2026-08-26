@@ -98,7 +98,35 @@ func _process(delta: float) -> void:
 ## 파괴 지점을 하나로 모은다 — Combatant가 이걸 오버라이드해서 전투사망/소각사망
 ## 양쪽 다 died 신호가 나가게 한다(전에는 소각사망 때 died가 안 나가는 구멍이 있었음).
 func _on_destroyed() -> void:
+	_spawn_destroy_effect()
 	queue_free()
+
+
+## §3.2 "이펙트" - 죽을 때 재질 색 파편이 잠깐 튀는 연출. self가 이 프레임에
+## queue_free되므로 파티클은 부모의 자식으로 따로 띄운다. finished 신호를
+## 믿었다가 웹에서 SFX 정리가 안 됐던 것과 같은 부류의 문제를 피하려고
+## (§오디오 교훈) 재생시간 기반 타이머로 직접 정리한다.
+func _spawn_destroy_effect() -> void:
+	var parent := get_parent()
+	if parent == null:
+		return
+	var particles := CPUParticles2D.new()
+	particles.global_position = global_position
+	particles.amount = 10
+	particles.lifetime = 0.35
+	particles.one_shot = true
+	particles.explosiveness = 1.0
+	particles.direction = Vector2.UP
+	particles.spread = 180.0
+	particles.gravity = Vector2(0, 300)
+	particles.initial_velocity_min = 50.0
+	particles.initial_velocity_max = 110.0
+	particles.scale_amount_min = 3.0
+	particles.scale_amount_max = 5.0
+	particles.color = MATERIAL_COLORS.get(chem_material, Color.WHITE)
+	parent.add_child(particles)
+	particles.emitting = true
+	get_tree().create_timer(particles.lifetime + 0.2).timeout.connect(particles.queue_free)
 
 
 ## §3.3 드랍 — 파괴 시점의 상태(state)로 기본/BURNING 테이블 중 골라 굴리고,
