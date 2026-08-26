@@ -10,6 +10,7 @@ extends CanvasLayer
 @export var title_scene_path: String = "res://scenes/title/title.tscn"
 
 var _panel: Panel
+var _label: Label
 
 
 func _ready() -> void:
@@ -21,11 +22,15 @@ func _ready() -> void:
 	_panel.size = Vector2(350, 160)
 	add_child(_panel)
 
-	var label := Label.new()
-	label.position = Vector2(20, 20)
-	label.add_theme_font_size_override("font_size", 18)
-	label.text = "일시정지\n\nESC: 재개\nT: 타이틀로 나가기"
-	_panel.add_child(label)
+	_label = Label.new()
+	_label.position = Vector2(20, 20)
+	_label.add_theme_font_size_override("font_size", 18)
+	_panel.add_child(_label)
+	_refresh_label()
+
+
+func _refresh_label() -> void:
+	_label.text = "일시정지\n\nESC: 재개\nT: 타이틀로 나가기\nM: BGM 음량 (%s)" % Audio.bgm_volume_label()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -35,6 +40,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		toggle_pause()
 	elif visible and event.keycode == KEY_T:
 		go_to_title()
+	elif visible and event.keycode == KEY_M:
+		Audio.cycle_bgm_volume()
+		_refresh_label()
 
 
 func toggle_pause() -> void:

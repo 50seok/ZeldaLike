@@ -18,14 +18,40 @@ const SFX := {
 	"jingle": preload("res://assets/audio/sfx/item_get_jingle.ogg"),
 }
 
+## 실측 지적("BGM 소리를 줄이거나 끌 수 있는 UI가 필요할듯") - 정밀한 dB
+## 슬라이더 대신 이 프로젝트 전체가 키보드 전용 UX라(마우스 조작 없음) 단계
+## 순환으로 충분하다. BGM만 별도 버스로 둬서 SFX는 안 건드리고 배경음악만
+## 낮춘다.
+const BGM_VOLUME_LEVELS := [
+	{"db": 0.0, "label": "100%"},
+	{"db": -6.0, "label": "50%"},
+	{"db": -14.0, "label": "20%"},
+	{"db": -80.0, "label": "음소거"},
+]
+
 var _bgm_player: AudioStreamPlayer
 var _current_bgm: String = ""
+var _bgm_volume_index := 0
 
 
 func _ready() -> void:
+	if AudioServer.get_bus_index("BGM") == -1:
+		AudioServer.add_bus()
+		AudioServer.set_bus_name(AudioServer.bus_count - 1, "BGM")
+
 	_bgm_player = AudioStreamPlayer.new()
+	_bgm_player.bus = "BGM"
 	add_child(_bgm_player)
 	_bgm_player.finished.connect(func(): _bgm_player.play())
+
+
+func cycle_bgm_volume() -> void:
+	_bgm_volume_index = (_bgm_volume_index + 1) % BGM_VOLUME_LEVELS.size()
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("BGM"), BGM_VOLUME_LEVELS[_bgm_volume_index]["db"])
+
+
+func bgm_volume_label() -> String:
+	return BGM_VOLUME_LEVELS[_bgm_volume_index]["label"]
 
 
 func play_bgm(track: String) -> void:

@@ -44,6 +44,7 @@ func _run_all_tests() -> void:
 	await _test_sfx_cleans_up_after_playing()
 	await _test_notable_item_gets_jingle()
 	await _test_hit_flash_and_destroy_effect()
+	await _test_bgm_volume_control()
 
 
 func _test_bgm_switch_and_dedup() -> void:
@@ -115,6 +116,31 @@ func _test_hit_flash_and_destroy_effect() -> void:
 		if child is CPUParticles2D:
 			child.queue_free()
 	await get_tree().create_timer(0.1).timeout
+
+
+## 실측 지적("BGM 소리를 줄이거나 끌 수 있는 UI가 필요") - PauseMenu의 M키가
+## Audio.cycle_bgm_volume()을 부른다. BGM 전용 버스라 SFX 버스(Master)는
+## 안 건드리는지, 끝까지 돌리면 처음(100%)으로 돌아오는지 확인한다.
+func _test_bgm_volume_control() -> void:
+	var bus := AudioServer.get_bus_index("BGM")
+	_check("E BGM 전용 오디오 버스가 생성됨", bus != -1)
+
+	# 시작 상태(100%)로 맞춰두고 진행 - 다른 테스트가 먼저 순환시켰을 수 있음
+	while Audio.bgm_volume_label() != "100%":
+		Audio.cycle_bgm_volume()
+
+	Audio.cycle_bgm_volume()
+	_check("E 1단계 순환 -> 50%로 낮아짐", Audio.bgm_volume_label() == "50%")
+	_check("E 실제 버스 볼륨도 낮아짐(0dB보다 작음)", AudioServer.get_bus_volume_db(bus) < 0.0)
+
+	Audio.cycle_bgm_volume()
+	Audio.cycle_bgm_volume()
+	_check("E 계속 순환 -> 음소거까지 도달", Audio.bgm_volume_label() == "음소거")
+
+	Audio.cycle_bgm_volume()
+	_check("E 음소거에서 한 번 더 -> 100%로 순환", Audio.bgm_volume_label() == "100%")
+
+	_check("E Master 버스는 안 건드림(SFX 영향 없음)", AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Master")) == 0.0)
 
 
 func _print_summary() -> void:
