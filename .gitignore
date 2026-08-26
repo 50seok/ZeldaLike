@@ -7,6 +7,9 @@ export.cfg
 # Godot engine binaries (downloaded, not project source)
 godot/
 
+# 웹/exe 빌드 산출물(export_presets.cfg로 언제든 재생성 가능, 용량 커서 제외)
+project/build/
+
 # OS
 Thumbs.db
 .DS_Store
