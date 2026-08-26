@@ -88,6 +88,9 @@ func _ready() -> void:
 	)
 
 	# §4.1 "물 웅덩이 2곳(항아리 리필)" - 콤보 자원이 고갈돼 막히지 않게.
+	# dungeon_test 실측으로 드러난 문제(작은 방은 카메라가 거의 항상 덮고
+	# 있어 "화면 밖일 때만 리젠" 조건이 사실상 안 걸림)가 여기도 동일 구조라
+	# 같이 4곳으로 늘려 리젠에 의존 안 해도 3회 콤보가 가능하게 함.
 	var jar_sp1 := SpawnPoint.new()
 	jar_sp1.entity_type = "water_jar"
 	jar_sp1.respawn_sec = 5.0  # 콤보를 3번(페이즈마다 재감전) 반복해야 해서 넉넉히 짧게
@@ -98,10 +101,20 @@ func _ready() -> void:
 	jar_sp2.respawn_sec = 5.0
 	jar_sp2.position = Vector2(650, 500)
 	add_child(jar_sp2)
+	var jar_sp3 := SpawnPoint.new()
+	jar_sp3.entity_type = "water_jar"
+	jar_sp3.respawn_sec = 5.0
+	jar_sp3.position = Vector2(150, 100)
+	add_child(jar_sp3)
+	var jar_sp4 := SpawnPoint.new()
+	jar_sp4.entity_type = "water_jar"
+	jar_sp4.respawn_sec = 5.0
+	jar_sp4.position = Vector2(650, 100)
+	add_child(jar_sp4)
 
 	var item_mgr := FieldSpawnManager.new()
-	item_mgr.spawn_points = [jar_sp1, jar_sp2]
-	item_mgr.field_cap = 2
+	item_mgr.spawn_points = [jar_sp1, jar_sp2, jar_sp3, jar_sp4]
+	item_mgr.field_cap = 4
 	add_child(item_mgr)
 	item_mgr.setup(camera)
 

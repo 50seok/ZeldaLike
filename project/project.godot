@@ -20,6 +20,18 @@ ChemistryManager="*res://scripts/chemistry/chemistry_manager.gd"
 StoryFlags="*res://scripts/story/story_flags.gd"
 SaveManager="*res://scripts/story/save_manager.gd"
 
+[display]
+
+; 웹에서 실측 확인된 버그("다음 방이 미리 보임") 원인 - 스트레치 설정이 없어
+; 실제 브라우저 창 크기가 그대로 게임 뷰포트 크기가 됨(에디터 테스트창 1152x648
+; 보다 큰 창이면 카메라가 방 경계에 맞춰 clamp돼도 화면 자체가 방 폭(800)보다
+; 넓어져 옆방이 그대로 노출됨). 뷰포트를 고정하고 화면 크기에는 스케일만
+; 하도록 지정 - 방 카메라 가정(room-sized limit)이 창 크기와 무관하게 성립.
+window/size/viewport_width=1152
+window/size/viewport_height=648
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
+
 [gui]
 
 theme/custom_font="res://assets/fonts/NanumGothic-Regular.ttf"

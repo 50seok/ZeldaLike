@@ -229,6 +229,13 @@ func _ready() -> void:
 		get_tree().change_scene_to_file("res://scenes/ending/ending.tscn")
 	)
 
+	# 실측 지적("보스방 물이 너무 늦게 생김") 원인 - respawn_sec(5초) 자체가
+	# 아니라, 리젠 조건 중 "화면 밖일 때만"(FieldSpawnManager._is_offscreen,
+	# §4.2 눈앞 팝인 금지)이 보스방처럼 카메라가 방 전체를 거의 항상 비추는
+	# 작은 방에서는 사실상 절대 충족되지 않아 리젠이 멈춘 것(항아리 위치가
+	# 카메라에서 벗어날 일이 없음). 리젠 로직을 고치는 대신 - 보스전은 어차피
+	# §4.1 "고정 배치"라 - 스폰포인트를 4곳(3회 스턴 사이클 + 여유 1)으로
+	# 늘려 전투 시작 시점에 미리 다 채워두는 쪽으로 해결(리젠에 의존 안 함).
 	var boss_jar_sp1 := SpawnPoint.new()
 	boss_jar_sp1.entity_type = "water_jar"
 	boss_jar_sp1.respawn_sec = 5.0
@@ -239,10 +246,20 @@ func _ready() -> void:
 	boss_jar_sp2.respawn_sec = 5.0
 	boss_jar_sp2.position = Vector2(3850, 500)
 	add_child(boss_jar_sp2)
+	var boss_jar_sp3 := SpawnPoint.new()
+	boss_jar_sp3.entity_type = "water_jar"
+	boss_jar_sp3.respawn_sec = 5.0
+	boss_jar_sp3.position = Vector2(3300, 150)
+	add_child(boss_jar_sp3)
+	var boss_jar_sp4 := SpawnPoint.new()
+	boss_jar_sp4.entity_type = "water_jar"
+	boss_jar_sp4.respawn_sec = 5.0
+	boss_jar_sp4.position = Vector2(3850, 150)
+	add_child(boss_jar_sp4)
 
 	var boss_item_mgr := FieldSpawnManager.new()
-	boss_item_mgr.spawn_points = [boss_jar_sp1, boss_jar_sp2]
-	boss_item_mgr.field_cap = 2
+	boss_item_mgr.spawn_points = [boss_jar_sp1, boss_jar_sp2, boss_jar_sp3, boss_jar_sp4]
+	boss_item_mgr.field_cap = 4
 	add_child(boss_item_mgr)
 	boss_item_mgr.setup(camera)
 
