@@ -50,3 +50,11 @@ func play_sfx(name: String) -> void:
 	add_child(p)
 	p.play()
 	p.finished.connect(p.queue_free)
+	# 웹(HTML5) 빌드는 AudioStreamPlayer.finished가 압축 포맷에서 안 터지는 경우가
+	# 알려져 있다 - 그러면 정리가 영영 안 돼 노드가 계속 쌓이고, 전투가 길어질수록
+	# (히트가 잦을수록) 프레임이 서서히 죽어 "멈춘 것처럼" 보일 수 있다. finished만
+	# 믿지 않고 재생 길이+여유로 강제 정리하는 보험을 하나 더 둔다. p를 캡처하는
+	# 람다로 감싸면 이미 해제된 뒤 호출될 때 "Lambda capture was freed" 에러가
+	# 나서(실측 확인) - p.queue_free를 직접 연결(다른 Callable 바인딩과 동일하게
+	# 이미 해제된 대상이면 조용히 무시됨).
+	get_tree().create_timer(p.stream.get_length() + 0.5).timeout.connect(p.queue_free)
