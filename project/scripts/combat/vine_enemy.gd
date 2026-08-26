@@ -14,7 +14,12 @@ enum AIState { IDLE, CHASE }
 ## 끝없이 따라와 옆방까지 넘어올 수 있었다(실측 지적: "몬스터들은 따라오지
 ## 못하게 해야할듯" - 보스 페이즈2가 소환하는 덩굴이가 보스방 밖으로 새는 경우).
 ## 스폰 지점에서 이 거리 밖으로는 추적해도 실제로 움직이지 않는다("목줄").
-@export var leash_distance: float = 300.0
+## 300 -> 150 재보정(실측 재발: "몬스터가 마을로 들어옴") - world_test.gd
+## 초원 덩굴이 스폰(x=1000)이 마을 경계(x=800)에서 겨우 200 떨어져 있어
+## 300짜리 목줄로는 마을 안(x=700)까지 새어 들어갈 수 있었음. detect_radius를
+## 두 번 재보정했던 것과 같은 종류의 실수(한 씬 기준 숫자가 다른 씬엔 안 맞음) -
+## 아래 회귀테스트로 이 관계 자체를 고정해둔다.
+@export var leash_distance: float = 150.0
 
 var _state: AIState = AIState.IDLE
 var _player: Node2D

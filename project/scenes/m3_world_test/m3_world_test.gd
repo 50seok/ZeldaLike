@@ -46,6 +46,7 @@ func _run_all_tests() -> void:
 	await _test_grass_cut_drop()
 	await _test_grass_burn_no_drop()
 	await _test_combatant_burn_death_signal()
+	await _test_vine_leash_fits_village_boundary()
 
 
 func _test_zone_switch() -> void:
@@ -127,6 +128,19 @@ func _test_combatant_burn_death_signal() -> void:
 	vine.set_state(ChemTypes.State.BURNING)
 	await get_tree().create_timer(0.4).timeout
 	_check("몬스터가 불타 죽어도 died 신호 발생", died_flag.v)
+
+
+## 실측 지적("몬스터가 마을로 들어옴") - world_test.gd 초원 덩굴이 스폰
+## (x=1000)이 마을 경계(x=800)에서 200 떨어져 있는데, 목줄(leash_distance)이
+## 그보다 크면(예전 기본값 300) 마을 안까지 새어 들어갈 수 있었다. 보스
+## detect_radius를 두 번 재보정했던 것과 같은 부류의 실수라(한 씬 기준
+## 숫자가 다른 씬엔 안 맞음) 매직넘버 대신 실제 기하 관계를 고정해둔다.
+func _test_vine_leash_fits_village_boundary() -> void:
+	var spawn_x := 1000.0  # world_test.gd sp1.position.x
+	var village_edge_x := 800.0  # world_test.gd _village_bounds.end.x
+	var vine := VineEnemy.new()
+	_check("초원 덩굴이 목줄 -> 마을 경계까지 거리(200)보다 작음(마을 침입 방지)", vine.leash_distance < spawn_x - village_edge_x)
+	vine.queue_free()
 
 
 func _print_summary() -> void:

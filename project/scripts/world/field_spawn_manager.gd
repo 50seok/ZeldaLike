@@ -96,6 +96,7 @@ func _create_entity(entity_type: String) -> ChemActor:
 			var jar := Throwable.new()
 			jar.chem_material = ChemTypes.MaterialTag.WATER
 			jar.display_name = "물항아리"
+			jar.sprite_texture = SpriteUtil.tile(SpriteUtil.TINY_CREATURES, 56, SpriteUtil.TINY_CREATURES_COLS)
 			return jar
 		_:
 			push_warning("FieldSpawnManager: 알 수 없는 엔티티 타입 '%s'" % entity_type)

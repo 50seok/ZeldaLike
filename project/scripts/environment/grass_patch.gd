@@ -9,6 +9,7 @@ func _ready() -> void:
 	super._ready()
 	chem_material = ChemTypes.MaterialTag.GRASS
 	burn_duration = 0.4
+	sprite_texture = SpriteUtil.tile(SpriteUtil.TINY_TOWN, 17, SpriteUtil.TINY_TOWN_COLS)
 	add_to_group("cuttable_props")
 	_setup_drops()
 
