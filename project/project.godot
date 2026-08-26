@@ -20,6 +20,10 @@ ChemistryManager="*res://scripts/chemistry/chemistry_manager.gd"
 StoryFlags="*res://scripts/story/story_flags.gd"
 SaveManager="*res://scripts/story/save_manager.gd"
 
+[gui]
+
+theme/custom_font="res://assets/fonts/NanumGothic-Regular.ttf"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
