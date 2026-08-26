@@ -21,12 +21,13 @@ var _arena_bounds := Rect2(-50, -50, 900, 700)
 ## 캐릭터만 떠 있어 위치/이동을 체감하기 어려웠다. 아레나 바닥+경계선을 그려
 ## 시각적 기준점을 준다.
 func _draw() -> void:
-	draw_rect(_arena_bounds, Color(0.16, 0.12, 0.12))
 	draw_rect(_arena_bounds, Color(0.5, 0.15, 0.15), false, 4.0)
 
 
 func _ready() -> void:
 	Audio.play_bgm("boss")
+
+	add_child(SpriteUtil.make_tiled_floor(SpriteUtil.FLOOR_STONE, _arena_bounds, Color(1.3, 0.6, 0.6)))
 
 	_player = Player.new()
 	_player.global_position = Vector2(400, 500)

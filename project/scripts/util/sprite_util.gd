@@ -14,6 +14,13 @@ const TINY_DUNGEON_COLS := 12
 const TINY_CREATURES: Texture2D = preload("res://assets/sprites/tiny_creatures/tilemap_packed.png")
 const TINY_CREATURES_COLS := 10
 
+## 방 배경(§5 "게임 배경화면") - 낱장으로 잘라둔 16x16 바닥 타일 하나를 반복
+## 샘플링해서 채운다. 시트 그대로 AtlasTexture+region으로 하면 GPU가 시트
+## 전체 기준으로 반복(wrap)해서 옆 타일이 새어 들어올 위험이 있어(실측 없이도
+## 알려진 함정), 미리 낱장 PNG로 잘라둔 파일을 쓴다.
+const FLOOR_STONE: Texture2D = preload("res://assets/sprites/tiny_dungeon/floor_stone.png")
+const FLOOR_SAND: Texture2D = preload("res://assets/sprites/tiny_dungeon/floor_sand.png")
+
 
 static func tile(sheet: Texture2D, index: int, cols: int) -> AtlasTexture:
 	var atlas := AtlasTexture.new()
@@ -22,3 +29,16 @@ static func tile(sheet: Texture2D, index: int, cols: int) -> AtlasTexture:
 	var row := index / cols
 	atlas.region = Rect2(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE)
 	return atlas
+
+
+static func make_tiled_floor(floor_texture: Texture2D, area: Rect2, tint: Color = Color.WHITE) -> Sprite2D:
+	var sprite := Sprite2D.new()
+	sprite.texture = floor_texture
+	sprite.centered = false
+	sprite.position = area.position
+	sprite.region_enabled = true
+	sprite.region_rect = Rect2(Vector2.ZERO, area.size)
+	sprite.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+	sprite.modulate = tint
+	sprite.z_index = -10  # 캐릭터·몬스터·문 등 다른 모든 것보다 뒤에 그려지게
+	return sprite

@@ -35,14 +35,17 @@ var _world_bounds: Rect2
 
 
 func _draw() -> void:
-	draw_rect(_village_bounds, Color(0.15, 0.15, 0.28))
-	draw_rect(_field_bounds, Color(0.12, 0.26, 0.14))
 	draw_rect(Rect2(_village_bounds.end.x - 5, 0, 10, _village_bounds.size.y), Color(1.0, 1.0, 0.3))
 	draw_rect(Rect2(_dungeon_entrance_x, 0, 100, _field_bounds.size.y), Color(0.3, 0.25, 0.15))
 
 
 func _ready() -> void:
 	Audio.play_bgm("village")
+
+	# §5 "게임 배경화면" - 마을(차분한 청회색 틴트)/초원(초록 틴트)을 실제 바닥
+	# 타일로 교체(전에는 단색 draw_rect였음).
+	add_child(SpriteUtil.make_tiled_floor(SpriteUtil.FLOOR_STONE, _village_bounds, Color(0.75, 0.8, 1.0)))
+	add_child(SpriteUtil.make_tiled_floor(SpriteUtil.FLOOR_SAND, _field_bounds, Color(0.75, 1.0, 0.75)))
 
 	_player = Player.new()
 	_player.global_position = Vector2(400, 300)

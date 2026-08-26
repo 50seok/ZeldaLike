@@ -27,17 +27,18 @@ var _room_secret := Rect2(1600, 600, 800, 600) # 비밀 방(하트조각)
 var _world_bounds: Rect2
 
 
-func _draw() -> void:
-	draw_rect(_room_a, Color(0.2, 0.18, 0.1))
-	draw_rect(_room_b, Color(0.18, 0.2, 0.14))
-	draw_rect(_room_c, Color(0.14, 0.18, 0.22))
-	draw_rect(_room_d, Color(0.22, 0.16, 0.1))
-	draw_rect(_room_boss, Color(0.25, 0.08, 0.08))
-	draw_rect(_room_secret, Color(0.25, 0.2, 0.05))
-
-
 func _ready() -> void:
 	Audio.play_bgm("dungeon")
+
+	# §5 "게임 배경화면" - 방마다 있던 단색 draw_rect를 실제 바닥 타일로 교체.
+	# 방별 구분(원래 단색으로 주던 느낌)은 타일 위에 얹는 색 틴트로 유지 -
+	# 보스방=위험한 붉은기, 비밀방=황금빛, 나머지는 은은한 구분.
+	add_child(SpriteUtil.make_tiled_floor(SpriteUtil.FLOOR_STONE, _room_a, Color(1.0, 0.95, 0.85)))
+	add_child(SpriteUtil.make_tiled_floor(SpriteUtil.FLOOR_STONE, _room_b, Color(0.95, 1.0, 0.9)))
+	add_child(SpriteUtil.make_tiled_floor(SpriteUtil.FLOOR_STONE, _room_c, Color(0.85, 0.9, 1.0)))
+	add_child(SpriteUtil.make_tiled_floor(SpriteUtil.FLOOR_STONE, _room_d, Color(1.0, 0.9, 0.75)))
+	add_child(SpriteUtil.make_tiled_floor(SpriteUtil.FLOOR_STONE, _room_boss, Color(1.3, 0.6, 0.6)))
+	add_child(SpriteUtil.make_tiled_floor(SpriteUtil.FLOOR_STONE, _room_secret, Color(1.2, 1.05, 0.5)))
 
 	_player = Player.new()
 	_player.global_position = Vector2(400, 300)
