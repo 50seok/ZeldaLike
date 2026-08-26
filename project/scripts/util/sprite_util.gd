@@ -21,6 +21,28 @@ const TINY_CREATURES_COLS := 10
 const FLOOR_STONE: Texture2D = preload("res://assets/sprites/tiny_dungeon/floor_stone.png")
 const FLOOR_SAND: Texture2D = preload("res://assets/sprites/tiny_dungeon/floor_sand.png")
 
+## "Tiny Town"(Kenney, CC0) - Tiny Dungeon과 짝을 이루는 마을/야외 팩. 실측
+## 지적("배경이 조잡함, 마을답게/던전답게/초원답게 보여야 함")으로 도입 -
+## 이제부터 방 배경은 반복 단일타일이 아니라 이 시트로 실제 레벨(잔디+길+
+## 나무+건물)을 그린다.
+const TINY_TOWN: Texture2D = preload("res://assets/sprites/tiny_town/tilemap_packed.png")
+const TINY_TOWN_COLS := 12
+
+
+## 시트 하나를 통째로 TileMap용 TileSet으로 등록한다(칸 전체를 다 등록해두면
+## 나중에 다른 타일이 더 필요해져도 새 TileSet을 안 만들어도 됨).
+static func build_tileset(sheet: Texture2D, cols: int, rows: int) -> TileSet:
+	var ts := TileSet.new()
+	ts.tile_size = Vector2i(TILE_SIZE, TILE_SIZE)
+	var source := TileSetAtlasSource.new()
+	source.texture = sheet
+	source.texture_region_size = Vector2i(TILE_SIZE, TILE_SIZE)
+	for row in range(rows):
+		for col in range(cols):
+			source.create_tile(Vector2i(col, row))
+	ts.add_source(source)
+	return ts
+
 
 static func tile(sheet: Texture2D, index: int, cols: int) -> AtlasTexture:
 	var atlas := AtlasTexture.new()

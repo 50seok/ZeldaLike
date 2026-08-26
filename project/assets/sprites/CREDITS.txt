@@ -12,5 +12,11 @@
 - 덩굴이(76), 엠버(45), 아이언셸(96), 혼돈의 코어/보스(41) 타일로 사용
 - 인덱스는 tilemap_packed.png를 10열 격자로 잘랐을 때 순번
 
+[tiny_town/] - Kenney.nl "Tiny Town" (kenney.nl/assets/tiny-town, Tiny Dungeon과
+  짝을 이루는 마을/야외 팩)
+- 마을 레벨(world_test.gd _build_village_tilemap)에서 잔디(0)/자갈길 오토타일
+  (12-14,24-26,36-38)/나무(3,4,5,9)/집 벽·지붕·문(48,63,78 회색·52,67,74 붉은벽돌)
+  전부 사용. 인덱스는 tilemap_packed.png를 12열 격자로 잘랐을 때 순번
+
 인덱스→타일 매핑은 scripts/util/sprite_util.gd + 각 엔티티 스크립트의 sprite_texture
 할당 라인 참고. 원본 라이선스: 각 폴더의 License.txt.
