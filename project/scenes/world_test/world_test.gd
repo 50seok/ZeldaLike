@@ -14,7 +14,7 @@ var _log_lines: Array[String] = []
 ## (900x700이었을 때는 존 안에서 카메라가 필드 전체를 거의 항상 보여줘서
 ## 리젠이 절대 안 되는 문제가 있었음 - 실측 확인).
 var _village_bounds := Rect2(0, 0, 800, 608)
-var _field_bounds := Rect2(800, 0, 1600, 1400)
+var _field_bounds := Rect2(800, 0, 1600, 1408)
 
 ## 실측 지적("배경이 조잡함 - 마을답게/던전답게/초원답게 보여야 함", "스타듀밸리처럼
 ## 집에 들어갔다 나갔다 했으면") - 마을은 반복 단일타일 대신 Tiny Town(§5) 타일로
@@ -50,10 +50,9 @@ func _draw() -> void:
 func _ready() -> void:
 	Audio.play_bgm("village")
 
-	# §5 "게임 배경화면" - 마을은 Tiny Town 타일로 실제 레벨(잔디+길+나무+집)을
-	# 그린다. 초원은 이번 패스에선 우선 기존 단일타일 유지(다음 패스에서 교체).
+	# §5 "게임 배경화면" - 마을/초원 둘 다 Tiny Town 타일로 실제 레벨을 그린다.
 	_build_village_tilemap()
-	add_child(SpriteUtil.make_tiled_floor(SpriteUtil.FLOOR_SAND, _field_bounds, Color(0.75, 1.0, 0.75)))
+	_build_field_tilemap()
 
 	_player = Player.new()
 	_player.global_position = Vector2(400, 300)
@@ -276,28 +275,9 @@ func _build_village_tilemap() -> void:
 			tm.set_cell(0, Vector2i(x, y), 0, grass)
 
 	# 자갈길(3x3 오토타일 블록 - 모서리/변/중앙) - 동서 대로 + 집으로 가는 지선.
-	var path_tl := _tt(12); var path_t := _tt(13); var path_tr := _tt(14)
-	var path_l := _tt(24); var path_c := _tt(25); var path_r := _tt(26)
-	var path_bl := _tt(36); var path_b := _tt(37); var path_br := _tt(38)
-
-	var fill_path := func(r0: int, r1: int, c0: int, c1: int):
-		for y in range(r0, r1 + 1):
-			for x in range(c0, c1 + 1):
-				var t: Vector2i
-				if y == r0 and x == c0: t = path_tl
-				elif y == r0 and x == c1: t = path_tr
-				elif y == r1 and x == c0: t = path_bl
-				elif y == r1 and x == c1: t = path_br
-				elif y == r0: t = path_t
-				elif y == r1: t = path_b
-				elif x == c0: t = path_l
-				elif x == c1: t = path_r
-				else: t = path_c
-				tm.set_cell(0, Vector2i(x, y), 0, t)
-
-	fill_path.call(9, 10, 2, 24)
-	fill_path.call(4, 8, 5, 6)
-	fill_path.call(4, 8, 11, 12)
+	_paint_dirt_path(tm, 9, 10, 2, 24)
+	_paint_dirt_path(tm, 4, 8, 5, 6)
+	_paint_dirt_path(tm, 4, 8, 11, 12)
 
 	var place_house := func(r0: int, c0: int, w: int, h: int, wall_idx: int, door_idx: int, door_col_offset: int, roof_idx: int):
 		var wall := _tt(wall_idx)
@@ -324,6 +304,63 @@ func _build_village_tilemap() -> void:
 
 	# 촌장 집 문 = 입장 트리거 위치(세계좌표, 2배 스케일 반영).
 	_chief_house_door_world = Vector2((_CHIEF_HOUSE_DOOR_TILE.x + 0.5) * 32.0, (_CHIEF_HOUSE_DOOR_TILE.y + 0.5) * 32.0)
+
+
+## 3x3 오토타일 블록(모서리/변/중앙)으로 직사각형 자갈길을 그린다 - 마을·초원
+## 양쪽에서 재사용.
+func _paint_dirt_path(tm: TileMap, r0: int, r1: int, c0: int, c1: int) -> void:
+	var path_tl := _tt(12); var path_t := _tt(13); var path_tr := _tt(14)
+	var path_l := _tt(24); var path_c := _tt(25); var path_r := _tt(26)
+	var path_bl := _tt(36); var path_b := _tt(37); var path_br := _tt(38)
+	for y in range(r0, r1 + 1):
+		for x in range(c0, c1 + 1):
+			var t: Vector2i
+			if y == r0 and x == c0: t = path_tl
+			elif y == r0 and x == c1: t = path_tr
+			elif y == r1 and x == c0: t = path_bl
+			elif y == r1 and x == c1: t = path_br
+			elif y == r0: t = path_t
+			elif y == r1: t = path_b
+			elif x == c0: t = path_l
+			elif x == c1: t = path_r
+			else: t = path_c
+			tm.set_cell(0, Vector2i(x, y), 0, t)
+
+
+## 실측 지적("초원도 마을처럼 레벨디자인") - 잔디 한 가지 색만 반복하는 대신
+## 꽃 변형 타일을 드문드문 섞어 자연스러운 질감을 주고, 마을 대로와 같은 y
+## 위치(행 9~10)에서 계속 이어지는 길을 내고, 가장자리에 나무를 둘러 "초원
+## 답게" 보이도록 한다. 몬스터·스폰포인트 배치(§M3 우선순위3)는 그대로 - 이
+## 타일맵은 순수 배경이라 위에 얹히는 것들과 좌표 충돌 없음.
+func _build_field_tilemap() -> void:
+	var tm := TileMap.new()
+	tm.tile_set = SpriteUtil.build_tileset(SpriteUtil.TINY_TOWN, SpriteUtil.TINY_TOWN_COLS, 11)
+	tm.position = Vector2(_field_bounds.position.x, 0)
+	tm.scale = Vector2(2, 2)
+	tm.z_index = -10
+	add_child(tm)
+
+	var cols := int(_field_bounds.size.x / 32.0)
+	var rows := int(_field_bounds.size.y / 32.0)
+	var grass_variants := [0, 0, 0, 0, 1, 2]
+	for y in range(rows):
+		for x in range(cols):
+			var variant := 0
+			if (x * 7 + y * 13) % 11 == 0:
+				variant = grass_variants[(x + y) % grass_variants.size()]
+			tm.set_cell(0, Vector2i(x, y), 0, _tt(variant))
+
+	# 마을 대로(행 9~10)와 같은 높이로 계속 이어지는 길.
+	_paint_dirt_path(tm, 9, 10, 0, cols - 1)
+
+	var trees := [3, 4, 5, 9, 18]
+	var tree_positions: Array[Vector2i] = []
+	for x in range(2, cols - 2, 7):
+		tree_positions.append(Vector2i(x, 0))
+		tree_positions.append(Vector2i(x + 3, rows - 1))
+	for i in range(tree_positions.size()):
+		var p: Vector2i = tree_positions[i]
+		tm.set_cell(0, p, 0, _tt(trees[i % trees.size()]))
 
 
 func _tt(index: int) -> Vector2i:
