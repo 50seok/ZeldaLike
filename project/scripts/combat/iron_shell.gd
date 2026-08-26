@@ -6,7 +6,7 @@ extends Combatant
 ## 전투 피해가 들어간다 — 보스전 콤보(§3.5)의 예행연습.
 
 @export var move_speed: float = 25.0
-@export var contact_damage: float = 1.0
+@export var contact_damage: float = 1.25  # 밸런싱(M5-우선순위4, 실측 지적 "너무 쉬움") - 1.0→1.25
 @export var contact_cooldown: float = 1.0
 @export var stun_duration: float = 3.0
 

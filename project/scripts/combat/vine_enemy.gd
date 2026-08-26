@@ -8,7 +8,7 @@ enum AIState { IDLE, CHASE }
 
 @export var move_speed: float = 60.0
 @export var detect_radius: float = 120.0
-@export var contact_damage: float = 0.5
+@export var contact_damage: float = 0.75  # 밸런싱(M5-우선순위4, 실측 지적 "너무 쉬움") - 0.5→0.75
 @export var contact_cooldown: float = 1.0
 ## "방"이 실제 벽이 아니라 카메라 존일 뿐이라(§4.2), 한 번 쫓아오기 시작하면
 ## 끝없이 따라와 옆방까지 넘어올 수 있었다(실측 지적: "몬스터들은 따라오지

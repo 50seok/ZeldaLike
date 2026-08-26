@@ -9,7 +9,7 @@ extends Combatant
 @export var move_speed: float = 40.0
 @export var detect_radius: float = 140.0
 @export var stop_distance: float = 36.0
-@export var contact_damage: float = 1.0
+@export var contact_damage: float = 1.25  # 밸런싱(M5-우선순위4, 실측 지적 "너무 쉬움") - 1.0→1.25
 @export var contact_cooldown: float = 1.0
 
 var _player: Node2D

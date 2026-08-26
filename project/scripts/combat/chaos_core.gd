@@ -14,8 +14,8 @@ signal defeated
 enum Phase { ONE, TWO, THREE }
 
 @export var move_speed: float = 20.0
-@export var fireball_cooldown: float = 2.0
-@export var fireball_damage: float = 0.5
+@export var fireball_cooldown: float = 1.5  # 밸런싱(M5-우선순위4) - 2.0→1.5, 실측지적 "너무 쉬움"
+@export var fireball_damage: float = 0.75  # 밸런싱 - 0.5→0.75
 @export var stun_duration: float = 3.0
 @export var chase_distance: float = 60.0
 ## dungeon_test.tscn의 실제 보스방(800x600)에 보스를 방 정중앙에 두면, 가장
