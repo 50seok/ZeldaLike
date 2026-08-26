@@ -49,27 +49,31 @@ func _ready() -> void:
 	var ui := CanvasLayer.new()
 	add_child(ui)
 
+	# world_test.gd와 동일한 겹침 버그(안내문 줄바꿈 없이 손으로 고른 Y좌표에
+	# 고정 배치 - 텍스트가 길어지면 아래 라벨을 덮음) - VBoxContainer로 통일.
+	var info_panel := VBoxContainer.new()
+	info_panel.position = Vector2(20, 20)
+	ui.add_child(info_panel)
+
 	var help := Label.new()
-	help.position = Vector2(20, 20)
+	help.custom_minimum_size = Vector2(700, 0)
+	help.autowrap_mode = TextServer.AUTOWRAP_WORD
 	help.add_theme_font_size_override("font_size", 16)
 	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Space 줍기/던지기/상자 열기/대화(대화 중엔 다음 줄) · V 내려놓기 · Tab 화살속성 전환\n입구(수풀 태우기, 석판1)->작은열쇠방(석판2)->전기스위치방(얼음 녹이면 남쪽 비밀방=정령)->보스열쇠방(석판3)->보스방(혼돈의 코어, 물+전기 콤보로 스턴시킨 뒤 칼로 3회)"
-	ui.add_child(help)
+	info_panel.add_child(help)
 
 	_status_label = Label.new()
-	_status_label.position = Vector2(20, 70)
 	_status_label.add_theme_font_size_override("font_size", 16)
-	ui.add_child(_status_label)
+	info_panel.add_child(_status_label)
 
 	_log_label = Label.new()
-	_log_label.position = Vector2(20, 100)
 	_log_label.add_theme_font_size_override("font_size", 14)
 	_log_label.add_theme_color_override("font_color", Color(1, 0.9, 0.4))
-	ui.add_child(_log_label)
+	info_panel.add_child(_log_label)
 
 	var hotbar := Hotbar.new()
-	hotbar.position = Vector2(20, 210)
 	hotbar.player = _player
-	ui.add_child(hotbar)
+	info_panel.add_child(hotbar)
 
 	ui.add_child(PauseMenu.new())
 

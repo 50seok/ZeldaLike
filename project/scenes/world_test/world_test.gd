@@ -56,36 +56,38 @@ func _ready() -> void:
 	var ui := CanvasLayer.new()
 	add_child(ui)
 
-	# 실측 지적("초원에서 던전 가는 길을 모르겠음") 원인 - 이 텍스트가 한 줄로
-	# 너무 길어서 줄바꿈 없이 화면을 가로질러 QuestTracker(x=750 위치)까지
-	# 침범해 서로 겹쳐 읽을 수 없는 글자 뭉치가 됐었다. 폭 제한+자동 줄바꿈으로 수정.
+	# 실측 지적("초원에서 던전 가는 길을 모르겠음") 원인 - help/상태/로그/핫바를
+	# 각자 손으로 계산한 Y좌표에 고정 배치해서, 안내문이 줄바꿈으로 늘어나면
+	# 밑의 라벨들과 겹쳤다(위치 하드코딩은 텍스트 길이가 바뀔 때마다 다시 깨짐 -
+	# QuestTracker와 겹쳤던 것과 같은 버그가 이번엔 자기들끼리 재발). VBoxContainer로
+	# 묶어 실제 렌더 높이만큼 자동으로 다음 요소를 밀어내게 한다.
+	var info_panel := VBoxContainer.new()
+	info_panel.position = Vector2(20, 20)
+	ui.add_child(info_panel)
+
 	var help := Label.new()
-	help.position = Vector2(20, 20)
-	help.size = Vector2(700, 60)
+	help.custom_minimum_size = Vector2(700, 0)
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD
 	help.add_theme_font_size_override("font_size", 16)
 	help.text = "방향키 이동 · Z 칼(수풀도 벨 수 있음) · X 활 · Space 줍기/던지기/대화(대화 중엔 다음 줄) · V 내려놓기 · Tab 화살속성 전환(일반/불/전기)\n마을(안전, 촌장/주민 NPC 있음)->초원(덩굴이+수풀, 리젠됨)->더 오른쪽: 우드가드(불화살로 방패 태우기, 방패 있어도 근접하면 반격함)/엠버(물항아리로 즉사)/아이언셸(물+전기 콤보로 스턴시킨 뒤 3방 더 때려야 처치)"
-	ui.add_child(help)
+	info_panel.add_child(help)
 
 	_status_label = Label.new()
-	_status_label.position = Vector2(20, 70)
 	_status_label.add_theme_font_size_override("font_size", 16)
-	ui.add_child(_status_label)
+	info_panel.add_child(_status_label)
 
 	_log_label = Label.new()
-	_log_label.position = Vector2(20, 100)
 	_log_label.add_theme_font_size_override("font_size", 14)
 	_log_label.add_theme_color_override("font_color", Color(1, 0.9, 0.4))
-	ui.add_child(_log_label)
+	info_panel.add_child(_log_label)
 
 	var dialogue_box := DialogueBox.new()
 	ui.add_child(dialogue_box)
 	dialogue_box.add_to_group("dialogue_box")
 
 	var hotbar := Hotbar.new()
-	hotbar.position = Vector2(20, 210)
 	hotbar.player = _player
-	ui.add_child(hotbar)
+	info_panel.add_child(hotbar)
 
 	ui.add_child(PauseMenu.new())
 
