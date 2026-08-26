@@ -55,6 +55,7 @@ func take_damage(amount: float) -> void:
 	if hearts <= 0.0:
 		return
 	hearts = max(0.0, hearts - amount)
+	Audio.play_sfx("hit")
 	damaged.emit(amount)
 	_update_label()
 	if hearts <= 0.0:

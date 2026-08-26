@@ -26,6 +26,8 @@ func _draw() -> void:
 
 
 func _ready() -> void:
+	Audio.play_bgm("boss")
+
 	_player = Player.new()
 	_player.global_position = Vector2(400, 500)
 	# 보스전을 실제로 "깰 수 있게" 장비를 넉넉히 갖추고 시작한다 - 콤보를

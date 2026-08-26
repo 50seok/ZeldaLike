@@ -49,6 +49,7 @@ func unlock() -> void:
 		return
 	locked = false
 	queue_redraw()
+	Audio.play_sfx("door")
 	unlocked.emit()
 
 

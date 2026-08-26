@@ -99,6 +99,7 @@ func take_damage(amount: float) -> void:
 
 
 func perform_melee_attack() -> void:
+	Audio.play_sfx("attack")
 	did_attack.emit("칼")
 	for node in get_tree().get_nodes_in_group("combatant_enemies"):
 		if is_instance_valid(node) and _is_in_melee_range(node):
@@ -128,6 +129,7 @@ func perform_bow_attack() -> void:
 		return
 	inventory.remove(ItemIds.ARROW, 1)
 	var tool_names := {ToolType.NORMAL: "일반", ToolType.FIRE: "불", ToolType.ELECTRIC: "전기"}
+	Audio.play_sfx("attack")
 	did_attack.emit("활(%s)" % tool_names[current_tool])
 	var arrow := Arrow.new()
 	arrow.shooter = self
@@ -217,6 +219,7 @@ func collect_item(item_id: String, count: int) -> void:
 				hearts = max_hearts
 		_:
 			inventory.add(item_id, count)
+	Audio.play_sfx("pickup")
 	item_collected.emit(item_id, count)
 
 

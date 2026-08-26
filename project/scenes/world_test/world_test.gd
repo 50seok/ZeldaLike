@@ -42,6 +42,8 @@ func _draw() -> void:
 
 
 func _ready() -> void:
+	Audio.play_bgm("village")
+
 	_player = Player.new()
 	_player.global_position = Vector2(400, 300)
 	add_child(_player)

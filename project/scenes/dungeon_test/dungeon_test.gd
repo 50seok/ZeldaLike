@@ -37,6 +37,8 @@ func _draw() -> void:
 
 
 func _ready() -> void:
+	Audio.play_bgm("dungeon")
+
 	_player = Player.new()
 	_player.global_position = Vector2(400, 300)
 	add_child(_player)
@@ -221,6 +223,7 @@ func _ready() -> void:
 	_zone_ctrl.zone_changed.connect(func(zone):
 		if zone and zone.zone_name == "보스 방" and is_instance_valid(boss):
 			boss_door.lock()
+			Audio.play_bgm("boss")
 			_log("문이 닫혔다 - 혼돈의 코어를 물리쳐야 나갈 수 있다!")
 	)
 	boss.defeated.connect(func():

@@ -1,0 +1,14 @@
+모든 오디오는 CC0(퍼블릭 도메인) - 크레딧 의무 아니지만 출처 기록 목적.
+
+[BGM] (assets/audio/bgm/)
+- village.mp3  = "Town Theme RPG" by cynicmusic (opengameart.org/content/town-theme-rpg)
+- dungeon.ogg  = "Loopable Dungeon Ambience" (opengameart.org/content/loopable-dungeon-ambience)
+- boss.mp3     = "Zelda Style 8-bit Boss Theme" (opengameart.org/content/zelda-style-8-bit-boss-theme)
+
+[SFX] (assets/audio/sfx/) - Kenney.nl, CC0
+- knifeSlice.ogg               = RPG Audio pack (공격 스윙)
+- impactGeneric_light_000.ogg  = Impact Sounds pack (피격/타격)
+- handleCoins.ogg              = RPG Audio pack (아이템 획득)
+- doorOpen_1.ogg               = RPG Audio pack (문 열림)
+
+원본 라이선스 파일: License_RPGAudio.txt, License_ImpactSounds.txt
