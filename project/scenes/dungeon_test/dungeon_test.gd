@@ -301,13 +301,13 @@ func _ready() -> void:
 	spirit.global_position = Vector2(2100, 850)
 	add_child(spirit)
 
-	# 정령을 구출하면 보스 열쇠와 별개로도 보스 방이 열린다(§3.5 그대로) - 이미
-	# 만들어둔 boss_door.unlock()을 재사용, Door는 둘 중 뭐가 먼저 오든 안전
-	# (한 번 열리면 unlock()이 멱등).
+	# 실측 지적("정령 구출하면 다음 방에서 열쇠 안 주워도 보스방에 넘어갈 수
+	# 있음") - 정령이 보스 문까지 직접 열어버려서 "보스 열쇠 방"의 열쇠 상자가
+	# 완전히 무의미해졌다(굳이 들를 필요가 없어짐). 정령의 역할은 대사(힌트)로
+	# 충분하다 - 문은 오직 보스 열쇠로만 연다.
 	StoryFlags.flag_changed.connect(func(flag_name):
 		if flag_name == "spirit_rescued":
-			boss_door.unlock()
-			_log("정령이 자유로워졌다 - 보스 방이 열렸다!")
+			_log("정령이 자유로워졌다 - 보스의 약점을 알려주었다!")
 	)
 
 

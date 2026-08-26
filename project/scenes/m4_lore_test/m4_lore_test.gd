@@ -3,7 +3,11 @@ extends Node2D
 ## M4 우선순위4 검증: 석판(§3.5 유적 내력) + 정령 구출. 둘 다 기존 NPC/대화/
 ## 스토리플래그 시스템을 재사용하는 거라, 여기선 재사용이 실제로 맞물리는지만
 ## 확인한다 - StoneTablet이 NPC 대화 그대로 동작하는지, 정령 구출(sets_flag)이
-## flag_changed 신호를 통해 문을 여는 배선까지 이어지는지.
+## 플래그를 세우는지.
+##
+## 정령이 보스 문까지 직접 열어주던 배선은 실측 지적("정령 구출하면 다음 방에서
+## 열쇠 안 주워도 보스방에 넘어갈 수 있음" - 보스 열쇠 방이 완전히 무의미해짐)으로
+## 제거됨(2026-08-26) - 정령은 이제 대사(힌트)만 준다, 문은 보스 열쇠로만 연다.
 
 @onready var _label: Label = $DebugLabel
 
@@ -34,7 +38,7 @@ func _refresh_label() -> void:
 
 func _run_all_tests() -> void:
 	await _test_stone_tablet_is_npc_reuse()
-	await _test_spirit_rescue_unlocks_door()
+	await _test_spirit_rescue_is_lore_only()
 
 
 func _test_stone_tablet_is_npc_reuse() -> void:
@@ -58,14 +62,15 @@ func _test_stone_tablet_is_npc_reuse() -> void:
 	await get_tree().create_timer(0.1).timeout
 
 
-## §3.5 "정령 구출(플래그)하면... 보스 방이 열림" - dungeon_test.gd와 동일한
-## 배선(flag_changed -> door.unlock())을 재현해서 확인한다.
-func _test_spirit_rescue_unlocks_door() -> void:
+## §3.5 "정령 구출(플래그)" - 정령은 대사(힌트)만 준다. 보스 문은 더 이상
+## 정령이 대신 열어주지 않는다(실측 지적 반영 - 아래 파일 상단 주석 참고).
+func _test_spirit_rescue_is_lore_only() -> void:
 	var box := DialogueBox.new()
 	box.chars_per_sec = 9999.0
 	add_child(box)
 
 	var door := Door.new()
+	door.required_key = ItemIds.BOSS_KEY
 	door.global_position = Vector2(500, 500)
 	add_child(door)
 
@@ -76,11 +81,6 @@ func _test_spirit_rescue_unlocks_door() -> void:
 	add_child(spirit)
 	await get_tree().process_frame
 
-	StoryFlags.flag_changed.connect(func(flag_name):
-		if flag_name == "test_spirit_rescued":
-			door.unlock()
-	)
-
 	_check("B 대화 전 -> 문은 잠긴 채", door.locked)
 
 	spirit.talk(box)
@@ -90,7 +90,7 @@ func _test_spirit_rescue_unlocks_door() -> void:
 	box.advance()  # 마지막 줄 완성 -> 닫기(대화 종료)
 	await get_tree().create_timer(0.05).timeout
 	_check("B 정령 대화 종료 -> 구출 플래그 세워짐", StoryFlags.has_flag("test_spirit_rescued"))
-	_check("B 구출 플래그 -> flag_changed 배선으로 문이 열림", not door.locked)
+	_check("B 정령 구출은 힌트만 -> 문은 여전히 잠긴 채(보스 열쇠 방을 건너뛸 수 없음)", door.locked)
 
 	box.queue_free()
 	door.queue_free()
