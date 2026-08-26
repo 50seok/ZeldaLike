@@ -43,6 +43,7 @@ func _refresh_label() -> void:
 
 func _run_all_tests() -> void:
 	await _test_saved_scene_path_roundtrip()
+	await _test_scene_transition_spawn_hint()
 
 
 func _test_saved_scene_path_roundtrip() -> void:
@@ -62,6 +63,18 @@ func _test_saved_scene_path_roundtrip() -> void:
 	_check("C 저장 삭제 후 -> 다시 빈 문자열", SaveManager.get_saved_scene_path() == "")
 
 	await get_tree().create_timer(0.1).timeout
+
+
+## 실측 지적("집에서 나오면 화면 정가운데로 와버림 - 던전 나가는 느낌") -
+## SceneTransition이 "이 씬으로 가면 이 위치"라는 힌트를 정확히 한 번만
+## 내주는지 확인한다(다른 씬 이름으로 물으면 안 주고, 소비하면 사라져야 함).
+func _test_scene_transition_spawn_hint() -> void:
+	_check("D 요청 전 -> 힌트 없음", SceneTransition.consume_spawn_for("res://scenes/world_test/world_test.tscn") == Vector2.INF)
+
+	SceneTransition.request_spawn_at("res://scenes/world_test/world_test.tscn", Vector2(176, 160))
+	_check("D 다른 씬 이름으로 물으면 -> 안 줌", SceneTransition.consume_spawn_for("res://scenes/dungeon_test/dungeon_test.tscn") == Vector2.INF)
+	_check("D 맞는 씬 이름으로 물으면 -> 요청한 위치를 줌", SceneTransition.consume_spawn_for("res://scenes/world_test/world_test.tscn") == Vector2(176, 160))
+	_check("D 한 번 소비하면 -> 다시 물어도 없음(재사용 안 됨)", SceneTransition.consume_spawn_for("res://scenes/world_test/world_test.tscn") == Vector2.INF)
 
 
 func _print_summary() -> void:

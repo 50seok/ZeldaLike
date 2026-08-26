@@ -40,6 +40,22 @@ func _ready() -> void:
 	add_child(SpriteUtil.make_tiled_floor(SpriteUtil.FLOOR_STONE, _room_boss, Color(1.3, 0.6, 0.6)))
 	add_child(SpriteUtil.make_tiled_floor(SpriteUtil.FLOOR_STONE, _room_secret, Color(1.2, 1.05, 0.5)))
 
+	# 실측 지적("던전도 던전처럼 동굴 느낌+횃불이 있는 느낌") - 방 체인이 전부
+	# 가로로 이어져 있어(§ _room_a~_room_boss) 각 방의 "위쪽 변"만은 항상 문이
+	# 없는 진짜 막다른 벽이다(옆방과 붙는 좌/우 변엔 문이 있어 벽을 그리면 문을
+	# 가려버림 - 그래서 위쪽 한 줄만 벽+횃불로 처리). 비밀방만 예외로 위쪽이
+	# room_c와 통하는 문이 있어 아래쪽 변에 벽을 둔다.
+	var cave_tm := TileMap.new()
+	cave_tm.tile_set = SpriteUtil.build_tileset(SpriteUtil.TINY_DUNGEON, SpriteUtil.TINY_DUNGEON_COLS, 11)
+	cave_tm.z_index = -9  # 바닥(-10)보다는 위, 캐릭터보다는 아래
+	add_child(cave_tm)
+	_add_cave_wall(cave_tm, _room_a, "top", 2)
+	_add_cave_wall(cave_tm, _room_b, "top", 2)
+	_add_cave_wall(cave_tm, _room_c, "top", 2)
+	_add_cave_wall(cave_tm, _room_d, "top", 2)
+	_add_cave_wall(cave_tm, _room_boss, "top", 3)
+	_add_cave_wall(cave_tm, _room_secret, "bottom", 2)
+
 	_player = Player.new()
 	_player.global_position = Vector2(400, 300)
 	add_child(_player)
@@ -318,6 +334,28 @@ func _ready() -> void:
 		if flag_name == "spirit_rescued":
 			_log("정령이 자유로워졌다 - 보스의 약점을 알려주었다!")
 	)
+
+
+## 방 하나의 top/bottom 변에 벽+횃불을 그린다(문이 있는 좌/우 변은 건드리지
+## 않음 - 위 _ready() 주석 참고). torch_count개를 변 위에 고르게 배치.
+func _add_cave_wall(tm: TileMap, room: Rect2, edge: String, torch_count: int) -> void:
+	var wall := _tt_dungeon(38)
+	var torch := _tt_dungeon(29)
+	var col0 := int(room.position.x / 32.0)
+	var col1 := int(room.end.x / 32.0) - 1
+	var row := int(room.position.y / 32.0) if edge == "top" else int(room.end.y / 32.0) - 1
+
+	for c in range(col0, col1 + 1):
+		tm.set_cell(0, Vector2i(c, row), 0, wall)
+
+	var span := col1 - col0
+	for i in range(torch_count):
+		var offset := (i + 1) * span / (torch_count + 1)
+		tm.set_cell(0, Vector2i(col0 + offset, row), 0, torch)
+
+
+func _tt_dungeon(index: int) -> Vector2i:
+	return Vector2i(index % SpriteUtil.TINY_DUNGEON_COLS, index / SpriteUtil.TINY_DUNGEON_COLS)
 
 
 func _process(_delta: float) -> void:

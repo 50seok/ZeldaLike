@@ -20,6 +20,7 @@ ChemistryManager="*res://scripts/chemistry/chemistry_manager.gd"
 StoryFlags="*res://scripts/story/story_flags.gd"
 SaveManager="*res://scripts/story/save_manager.gd"
 Audio="*res://scripts/audio/audio_manager.gd"
+SceneTransition="*res://scripts/story/scene_transition.gd"
 
 [display]
 

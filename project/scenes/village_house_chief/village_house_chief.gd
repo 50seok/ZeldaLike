@@ -129,6 +129,10 @@ func _process(_delta: float) -> void:
 	if not _exited and _player.global_position.y >= _exit_y_threshold:
 		_exited = true
 		SaveManager.save_game(_player)
+		# world_test.gd의 _CHIEF_HOUSE_DOOR_TILE(5,3)과 짝을 이루는 값 - 문 바로
+		# 앞(남쪽)으로 나오게. 두 값이 어긋나면 다시 정가운데로 돌아가버리니
+		# world_test.gd 쪽 문 위치를 바꾸면 여기도 같이 바꿀 것.
+		SceneTransition.request_spawn_at("res://scenes/world_test/world_test.tscn", Vector2(176, 160))
 		get_tree().change_scene_to_file("res://scenes/world_test/world_test.tscn")
 
 

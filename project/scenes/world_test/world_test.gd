@@ -232,6 +232,13 @@ func _ready() -> void:
 			_player.global_position = entry_position
 		_log("저장된 게임을 이어서 불러왔습니다")
 
+	# 실측 지적("집에서 나오면 화면 정가운데로 와버림 - 던전 나가는 느낌") -
+	# 위 SaveManager 로직(하트·인벤토리·플래그 보존이 목적)보다 더 구체적인
+	# "이 문 앞으로 정확히 돌아가라"는 힌트가 있으면 위치만 덮어쓴다.
+	var spawn_override := SceneTransition.consume_spawn_for(scene_file_path)
+	if spawn_override != Vector2.INF:
+		_player.global_position = spawn_override
+
 	# 실측 지적("스타듀밸리처럼 집에 들어갔다 나갔다") - 촌장은 이제 마을 밖이
 	# 아니라 자기 집 안(village_house_chief.tscn)에 있다. 대화·sets_flag 로직은
 	# 그 씬에 그대로(NPC 재사용, 새 시스템 0개).
