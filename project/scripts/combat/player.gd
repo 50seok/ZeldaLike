@@ -36,6 +36,7 @@ func _ready() -> void:
 	super._ready()
 	chem_material = ChemTypes.MaterialTag.CLOTH
 	display_name = "플레이어"
+	sprite_texture = SpriteUtil.tile(SpriteUtil.TINY_DUNGEON, 85, SpriteUtil.TINY_DUNGEON_COLS)
 	add_to_group("player")
 	_spawn_equipped_weapon()
 	inventory.add(ItemIds.ARROW, starting_arrows)

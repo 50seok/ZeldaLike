@@ -1,0 +1,14 @@
+모든 스프라이트는 CC0(퍼블릭 도메인) - 크레딧 의무 아니지만 출처 기록 목적.
+같은 16px "Tiny" 스타일 2팩으로 통일(PRD §5 "단일 팩" 취지).
+
+[tiny_dungeon/] - Kenney.nl "Tiny Dungeon" (kenney.nl/assets/tiny-dungeon)
+- 플레이어(85), 우드가드(96), 촌장(84), 마을주민(99), 원소 정령(121) 타일로 사용
+- 인덱스는 tilemap_packed.png를 12열 격자로 잘랐을 때 순번(왼쪽위 0부터)
+
+[tiny_creatures/] - 커뮤니티 확장판 "Tiny Creatures" (opengameart.org/content/tiny-creatures,
+  Kenney의 Tiny Dungeon/Tiny Town과 호환되게 만들어진 팬 제작 확장)
+- 덩굴이(76), 엠버(45), 아이언셸(96), 혼돈의 코어/보스(41) 타일로 사용
+- 인덱스는 tilemap_packed.png를 10열 격자로 잘랐을 때 순번
+
+인덱스→타일 매핑은 scripts/util/sprite_util.gd + 각 엔티티 스크립트의 sprite_texture
+할당 라인 참고. 원본 라이선스: 각 폴더의 License.txt.

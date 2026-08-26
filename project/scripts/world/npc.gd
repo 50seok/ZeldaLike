@@ -14,6 +14,7 @@ extends Area2D
 @export var requires_flag: String = ""
 @export var sets_flag: String = ""
 @export var box_size: Vector2 = Vector2(28, 28)
+@export var sprite_texture: Texture2D = null  # §5 "그래픽 에셋" - ChemActor와 동일 패턴
 
 
 func _ready() -> void:
@@ -34,12 +35,19 @@ func _ready() -> void:
 	label.text = npc_name
 	add_child(label)
 
+	if sprite_texture:
+		var sprite := Sprite2D.new()
+		sprite.texture = sprite_texture
+		sprite.scale = box_size / Vector2(SpriteUtil.TILE_SIZE, SpriteUtil.TILE_SIZE)
+		add_child(sprite)
+
 	queue_redraw()
 
 
 func _draw() -> void:
-	draw_rect(Rect2(-box_size / 2, box_size), Color(0.8, 0.7, 0.3))
-	draw_rect(Rect2(-box_size / 2, box_size), Color.BLACK, false, 2.0)
+	if sprite_texture == null:
+		draw_rect(Rect2(-box_size / 2, box_size), Color(0.8, 0.7, 0.3))
+		draw_rect(Rect2(-box_size / 2, box_size), Color.BLACK, false, 2.0)
 
 
 func talk(dialogue_box: DialogueBox) -> void:

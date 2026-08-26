@@ -23,6 +23,7 @@ func _ready() -> void:
 	max_hearts = 1.0
 	hearts = 1.0
 	display_name = "엠버"
+	sprite_texture = SpriteUtil.tile(SpriteUtil.TINY_CREATURES, 45, SpriteUtil.TINY_CREATURES_COLS)
 	add_to_group("combatant_enemies")
 	_setup_drops()
 

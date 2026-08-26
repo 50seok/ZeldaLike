@@ -17,10 +17,16 @@ signal burned_out
 @export var box_size: Vector2 = Vector2(32, 32)
 @export var drop_table: DropTable
 
+## §5 "그래픽 에셋" - 지정하면 재질색 사각형 대신 이 텍스처로 그린다(화학
+## 상태 틴트/테두리는 그 위에 그대로 유지 - 그림이 생겨도 WET/BURNING 같은
+## 게임플레이 신호는 계속 보여야 함).
+@export var sprite_texture: Texture2D = null
+
 var state: int = ChemTypes.State.NONE
 
 var _burn_timer := 0.0
 var _label: Label
+var _sprite: Sprite2D
 
 const FLAMMABLE := [ChemTypes.MaterialTag.WOOD, ChemTypes.MaterialTag.GRASS, ChemTypes.MaterialTag.CLOTH]
 
@@ -57,13 +63,23 @@ func _ready() -> void:
 	_label.position = Vector2(-box_size.x / 2, -box_size.y / 2 - 34)
 	_label.add_theme_font_size_override("font_size", 12)
 	add_child(_label)
-	# 자식 클래스(VineEnemy/Player 등)가 super._ready() 직후 자기 chem_material/display_name을
-	# 덮어쓰는 경우가 많아서, 그 덮어쓰기가 끝난 다음 프레임에 라벨을 갱신한다 —
-	# 여기서 즉시 호출하면 자식이 덮어쓰기 전 기본값(WOOD, 이름 없음)으로 굳어버린다(실측 확인).
-	call_deferred("_update_label")
+	# 자식 클래스(VineEnemy/Player 등)가 super._ready() 직후 자기 chem_material/display_name/
+	# sprite_texture를 덮어쓰는 경우가 많아서, 그 덮어쓰기가 끝난 다음 프레임에 라벨·스프라이트를
+	# 갱신한다 — 여기서 즉시 호출하면 자식이 덮어쓰기 전 기본값으로 굳어버린다(실측 확인).
+	call_deferred("_setup_deferred_visuals")
 
 	area_entered.connect(_on_area_entered)
 	queue_redraw()
+
+
+func _setup_deferred_visuals() -> void:
+	_update_label()
+	if sprite_texture and _sprite == null:
+		_sprite = Sprite2D.new()
+		_sprite.texture = sprite_texture
+		_sprite.scale = box_size / Vector2(SpriteUtil.TILE_SIZE, SpriteUtil.TILE_SIZE)
+		add_child(_sprite)
+		queue_redraw()
 
 
 func _on_area_entered(other: Area2D) -> void:
@@ -143,11 +159,12 @@ func perform_drops() -> void:
 
 
 func _draw() -> void:
-	var base: Color = MATERIAL_COLORS.get(chem_material, Color.GRAY)
-	draw_rect(Rect2(-box_size / 2, box_size), base)
+	if sprite_texture == null:
+		var base: Color = MATERIAL_COLORS.get(chem_material, Color.GRAY)
+		draw_rect(Rect2(-box_size / 2, box_size), base)
+		draw_rect(Rect2(-box_size / 2, box_size), Color.BLACK, false, 2.0)
 	if STATE_OVERLAY.has(state):
 		draw_rect(Rect2(-box_size / 2, box_size), STATE_OVERLAY[state])
-	draw_rect(Rect2(-box_size / 2, box_size), Color.BLACK, false, 2.0)
 
 
 func _update_label() -> void:

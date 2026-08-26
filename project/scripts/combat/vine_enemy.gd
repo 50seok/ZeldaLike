@@ -30,6 +30,7 @@ func _ready() -> void:
 	burn_duration = 0.4  # "불에 즉시 연소 사망" 체감 — 다른 재질보다 짧게
 	burn_kills_instantly = true  # §4.1 "덩굴이" = 불에 태우면 하트 수 무관 즉시 소멸(의도된 연출)
 	display_name = "덩굴이"
+	sprite_texture = SpriteUtil.tile(SpriteUtil.TINY_CREATURES, 76, SpriteUtil.TINY_CREATURES_COLS)
 	add_to_group("combatant_enemies")
 	_setup_drops()
 	_spawn_position = global_position

@@ -233,6 +233,7 @@ func _ready() -> void:
 		"자네가 가서 좀 진정시켜 주게.",
 	]
 	chief.sets_flag = "met_chief"
+	chief.sprite_texture = SpriteUtil.tile(SpriteUtil.TINY_DUNGEON, 84, SpriteUtil.TINY_DUNGEON_COLS)
 	chief.global_position = Vector2(200, 200)
 	add_child(chief)
 
@@ -241,6 +242,7 @@ func _ready() -> void:
 	villager.lines = ["요즘 원소가 폭주해서 무서워 죽겠어..."]
 	villager.alt_lines = ["촌장님이 자네에게 부탁하셨다니, 마음이 좀 놓이는군."]
 	villager.requires_flag = "met_chief"
+	villager.sprite_texture = SpriteUtil.tile(SpriteUtil.TINY_DUNGEON, 99, SpriteUtil.TINY_DUNGEON_COLS)
 	villager.global_position = Vector2(350, 150)
 	add_child(villager)
 

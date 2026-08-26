@@ -305,6 +305,7 @@ func _ready() -> void:
 		"가라, 견습 연금술사여. 균형을 되찾아다오.",
 	]
 	spirit.sets_flag = "spirit_rescued"
+	spirit.sprite_texture = SpriteUtil.tile(SpriteUtil.TINY_DUNGEON, 121, SpriteUtil.TINY_DUNGEON_COLS)
 	spirit.global_position = Vector2(2100, 850)
 	add_child(spirit)
 

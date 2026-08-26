@@ -23,6 +23,7 @@ func _ready() -> void:
 	max_hearts = 2.0
 	hearts = 2.0
 	display_name = "우드가드"
+	sprite_texture = SpriteUtil.tile(SpriteUtil.TINY_DUNGEON, 96, SpriteUtil.TINY_DUNGEON_COLS)
 	add_to_group("combatant_enemies")
 	_setup_drops()
 	_spawn_shield()

@@ -38,6 +38,8 @@ func _ready() -> void:
 	super._ready()
 	chem_material = ChemTypes.MaterialTag.NONE
 	display_name = "혼돈의 코어"
+	sprite_texture = SpriteUtil.tile(SpriteUtil.TINY_CREATURES, 41, SpriteUtil.TINY_CREATURES_COLS)
+	box_size = Vector2(48, 48)  # 보스는 좀 더 커 보이는 게 자연스럽다
 	max_hearts = 1.0  # 실제 격파 판정엔 안 쓰임 - take_damage를 hit_count 기반으로 완전히 대체
 	hearts = 1.0
 	add_to_group("combatant_enemies")
